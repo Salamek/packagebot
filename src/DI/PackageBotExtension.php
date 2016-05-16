@@ -1,6 +1,6 @@
 <?php
 
-namespace Extensions\PackageBot\DI;
+namespace Salamek\PackageBot\DI;
 
 use Nette\DI\CompilerExtension;
 use Nette\PhpGenerator\ClassType;

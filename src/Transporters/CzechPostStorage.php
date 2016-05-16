@@ -3,11 +3,11 @@
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-namespace Extensions\PackageBot\Transporters;
+namespace Salamek\PackageBot\Transporters;
 
 
-use Extensions\PackageBot\IPackageBotStorage;
-use Extensions\PackageBot\PackageBot;
+use Salamek\PackageBot\IPackageBotStorage;
+use Salamek\PackageBot\PackageBot;
 use Salamek\ICzechPostStorage;
 use Salamek\CzechPostPackage;
 use Salamek\CzechPostSender;

@@ -3,11 +3,11 @@
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-namespace Extensions\PackageBot;
+namespace Salamek\PackageBot;
 
 /**
  * Interface IPackageBotStorage
- * @package Extensions\PackageBot
+ * @package Salamek\PackageBot
  */
 interface IPackageBotStorage
 {

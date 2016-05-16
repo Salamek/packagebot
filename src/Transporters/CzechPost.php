@@ -1,11 +1,11 @@
 <?php
-namespace Extensions\PackageBot\Transporters;
+namespace Salamek\PackageBot\Transporters;
 
-use Extensions\PackageBot\IPackageBotStorage;
-use Extensions\PackageBot\PackageBot;
-use Extensions\PackageBot\PackageBotPackage;
-use Extensions\PackageBot\PackageBotParcelInfo;
-use Extensions\PackageBot\PackageBotReceiver;
+use Salamek\PackageBot\IPackageBotStorage;
+use Salamek\PackageBot\PackageBot;
+use Salamek\PackageBot\PackageBotPackage;
+use Salamek\PackageBot\PackageBotParcelInfo;
+use Salamek\PackageBot\PackageBotReceiver;
 use Salamek\CzechPostApi;
 use Salamek\CzechPostPackage;
 use Salamek\CzechPostSender;

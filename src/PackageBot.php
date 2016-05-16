@@ -4,10 +4,10 @@ namespace Extensions\PackageBot;
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-use Extensions\PackageBot\Transporters\CzechPost;
-use Extensions\PackageBot\Transporters\ITransporter;
-use Extensions\PackageBot\Transporters\PPL;
-use Extensions\PackageBot\Transporters\Ulozenka;
+use Salamek\PackageBot\Transporters\CzechPost;
+use Salamek\PackageBot\Transporters\ITransporter;
+use Salamek\PackageBot\Transporters\Ppl;
+use Salamek\PackageBot\Transporters\Ulozenka;
 use Nette;
 
 class PackageBot extends Nette\Object

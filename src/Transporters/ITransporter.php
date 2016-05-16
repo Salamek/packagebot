@@ -1,10 +1,10 @@
 <?php
-namespace Extensions\PackageBot\Transporters;
+namespace Salamek\PackageBot\Transporters;
 
-use Extensions\PackageBot\IPackageBotStorage;
-use Extensions\PackageBot\PackageBotPackage;
-use Extensions\PackageBot\PackageBotParcelInfo;
-use Extensions\PackageBot\PackageBotReceiver;
+use Salamek\PackageBot\IPackageBotStorage;
+use Salamek\PackageBot\PackageBotPackage;
+use Salamek\PackageBot\PackageBotParcelInfo;
+use Salamek\PackageBot\PackageBotReceiver;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
