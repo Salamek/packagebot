@@ -6,7 +6,7 @@
 namespace Extensions\PackageBot\Transporters;
 
 
-class Ulozenka
+class Ppl
 {
 
 }

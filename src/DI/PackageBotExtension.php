@@ -24,8 +24,8 @@ final class PackageBotExtension extends CompilerExtension
         $config = $this->validateConfig($this->defaults);
         $builder = $this->getContainerBuilder();
 
-        $builder->addDefinition($this->prefix('importer'))
-            ->setClass('Extensions\PackageBot\PackageBot', ['@cacheStorage', $config['transporters']]); //, '@' . $config['target']
+        $builder->addDefinition($this->prefix('packageBot'))
+            ->setClass('Extensions\PackageBot\PackageBot', ['@cacheStorage', $config['transporters'], $config['sender']]); //, '@' . $config['target']
     }
 
     /**
