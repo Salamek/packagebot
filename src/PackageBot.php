@@ -1,5 +1,5 @@
 <?php
-namespace Extensions\PackageBot;
+namespace Salamek\PackageBot;
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
@@ -12,7 +12,7 @@ use Nette;
 
 class PackageBot extends Nette\Object
 {
-    public static $namespace = 'Extensions\PackageBot';
+    public static $namespace = 'Salamek\PackageBot';
 
     /** @var array */
     private $transporters;
