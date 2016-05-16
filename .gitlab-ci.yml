@@ -1,0 +1,19 @@
+cache:
+  paths:
+  - vendor/
+
+before_script:
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - bash ci/docker_install.sh > /dev/null
+    - composer install --dev --no-interaction
+    - mkdir temp
+
+test:5.6:
+    image: php:5.6
+    script:
+    - phpunit --configuration phpunit.xml test
+
+test:7.0:
+    image: php:7.0
+    script:
+    - phpunit --configuration phpunit.xml test

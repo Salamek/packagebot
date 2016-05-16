@@ -1,0 +1,29 @@
+{
+  "name": "salamek/packagebot-local",
+  "description": "Packagebot service to handle packages simply and fast",
+  "keywords": ["czech post", "Česká pošta", "api", "PPL", "Ulozenka", "Packagebot"],
+  "homepage": "https://gitlab.salamek.cz/sadam/packagebot-local",
+  "license": ["BSD-3-Clause", "GPL-3.0"],
+  "authors": [
+    {
+      "name": "Adam Schubet",
+      "homepage": "http://www.salamek.cz"
+    }
+  ],
+  "autoload": {
+    "classmap": ["src/"]
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@gitlab.salamek.cz:sadam/czech-post-api.git"
+    }
+  ],
+  "require": {
+    "salamek/czech-post-api": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.3"
+  },
+  "minimum-stability": "dev"
+}
