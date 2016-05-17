@@ -47,7 +47,6 @@ class CzechPost implements ITransporter
         $czechPostSender = new CzechPostSender($this->id, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'], $configuration['postOfficeZipCode']);
 
         $this->api = new CzechPostApi($this->username, $this->password, $czechPostSender, new CzechPostStorage($this->botStorage), $cookieJar);
-        
     }
 
     /**
@@ -68,15 +67,16 @@ class CzechPost implements ITransporter
         $czechPostPackage->setWidth($package->getWidth());
         $czechPostPackage->setHeight($package->getHeight());
         $czechPostPackage->setLength($package->getLength());
+        $czechPostPackage->setOrderId($package->getOrderId());
 
         $this->api->persistPackage($czechPostPackage);
 
         $packageId = $this->api->generatePackageIdentifier($czechPostPackage);
         $label = $this->api->generatePackageLabel($czechPostPackage);
 
-        $labelPath = $this->botStorage->savePackageLabel(PackageBot::TRANSPORTER_CZECH_POST, $packageId, $label);
+        $this->botStorage->savePackageLabel(PackageBot::TRANSPORTER_CZECH_POST, $packageId, $label);
         
-        $packageBotParcelInfo = new PackageBotParcelInfo($packageId, $labelPath);
+        $packageBotParcelInfo = new PackageBotParcelInfo($packageId, $label);
 
         return $packageBotParcelInfo;
     }

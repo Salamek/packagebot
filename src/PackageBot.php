@@ -58,7 +58,7 @@ class PackageBot extends Nette\Object
         {
             if ($config['enabled'])
             {
-                $className = ucfirst($transporter);
+                $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
                 $iTransporter = new $className($config, $this->sender, $this->botStorage, $this->cookieJar);
                 $iTransporter->doFlush();
@@ -91,17 +91,26 @@ class PackageBot extends Nette\Object
             case self::TRANSPORTER_CZECH_POST:
             case self::TRANSPORTER_PPL:
             case self::TRANSPORTER_ULOZENKA:
-                $className = ucfirst($transporter);
+                $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
                 $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
                 break;
 
             default:
-                //Allow custom transporters here
+                //@TODO Allow custom transporters here
                 throw new \Exception('Unknow transporter');
                 break;
         }
 
         return $iTransporter->doParcel($package, $receiver);
+    }
+
+    /**
+     * @param $transporter
+     * @param $packageId
+     */
+    public function getPackageLabel($transporter, $packageId)
+    {
+        $this->botStorage->getPackageLabel($transporter, $packageId);
     }
 }

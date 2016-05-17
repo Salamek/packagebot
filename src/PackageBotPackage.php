@@ -11,6 +11,9 @@ class PackageBotPackage
     private $id;
 
     /** @var  int */
+    private $orderId;
+
+    /** @var  int */
     private $cashOnDeliveryPrice;
 
     /** @var  int */
@@ -54,6 +57,7 @@ class PackageBotPackage
      * @param string $description
      */
     public function __construct(
+        $orderId,
         $cashOnDeliveryPrice,
         $goodsPrice,
         $bankIdentifier = '',
@@ -61,12 +65,21 @@ class PackageBotPackage
         $type = self::DELIVERY_TYPE_DELIVER,
         $description = ''
     ) {
+        $this->setOrderId($orderId);
         $this->setCashOnDeliveryPrice($cashOnDeliveryPrice);
         $this->setGoodsPrice($goodsPrice);
         $this->setBankIdentifier($bankIdentifier);
         $this->setType($type);
         $this->setWeight($weight);
         $this->setDescription($description);
+    }
+
+    /**
+     * @param $orderId
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
     }
 
     /**
@@ -244,5 +257,13 @@ class PackageBotPackage
     public function getHeight()
     {
         return $this->height;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
     }
 }

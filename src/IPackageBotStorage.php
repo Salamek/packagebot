@@ -65,4 +65,11 @@ interface IPackageBotStorage
      * @return string
      */
     public function savePackageLabel($transporter, $packageId, $label);
+
+    /**
+     * @param $transporter
+     * @param $packageId
+     * @return mixed
+     */
+    public function getPackageLabel($transporter, $packageId);
 }
