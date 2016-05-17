@@ -16,6 +16,7 @@ final class PackageBotExtension extends CompilerExtension
     /** @var array */
     private $defaults = [
         'botStorage' => null,
+        'temp' => null,
         'transporters' => [],
         'sender' => []
     ];
@@ -27,7 +28,7 @@ final class PackageBotExtension extends CompilerExtension
         $builder = $this->getContainerBuilder();
 
         $builder->addDefinition($this->prefix('packageBot'))
-            ->setClass('Salamek\PackageBot\PackageBot', ['@cacheStorage', $config['transporters'], $config['sender'], '@' . $config['botStorage']]);
+            ->setClass('Salamek\PackageBot\PackageBot', ['@cacheStorage', $config['transporters'], $config['sender'], '@' . $config['botStorage'], $config['temp']]);
     }
 
     /**

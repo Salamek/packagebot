@@ -38,13 +38,23 @@ class PackageBot extends Nette\Object
      * @param array $transporters
      * @param array $sender
      * @param IPackageBotStorage $botStorage
-     * @param string $cookieJar
+     * @param string $tempDir
      */
-    public function __construct(Nette\Caching\IStorage $cacheStorage, array $transporters, array $sender, IPackageBotStorage $botStorage, $cookieJar = 'cookieJar.txt')
+    public function __construct(Nette\Caching\IStorage $cacheStorage, array $transporters, array $sender, IPackageBotStorage $botStorage, $tempDir = null)
     {
         $this->cache = new Nette\Caching\Cache($cacheStorage, self::$namespace);
         $this->transporters = $transporters;
         $this->sender = $sender;
+
+        if (is_null($tempDir))
+        {
+            $cookieJar = tempnam(sys_get_temp_dir(), 'cookieJar.txt');
+        }
+        else
+        {
+            $cookieJar = $tempDir.'/cookieJar.txt';
+        }
+
         $this->cookieJar = $cookieJar;
         $this->botStorage = $botStorage;
     }
