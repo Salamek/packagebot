@@ -118,9 +118,10 @@ class PackageBot extends Nette\Object
     /**
      * @param $transporter
      * @param $packageId
+     * @return mixed
      */
     public function getPackageLabel($transporter, $packageId)
     {
-        $this->botStorage->getPackageLabel($transporter, $packageId);
+        return $this->botStorage->getPackageLabel($transporter, $packageId);
     }
 }
