@@ -5,8 +5,20 @@
 
 namespace Salamek\PackageBot;
 
-
+/**
+ * Class AuthException
+ * @package Salamek\PackageBot
+ */
 class AuthException extends \Exception
+{
+
+}
+
+/**
+ * Class WrongDeliveryDataException
+ * @package Salamek\PackageBot
+ */
+class WrongDeliveryDataException  extends \Exception
 {
 
 }
