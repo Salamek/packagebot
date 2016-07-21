@@ -181,33 +181,4 @@ class PackageBotFileStorage implements IPackageBotStorage
     {
         return $this->get(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId);
     }
-
-    /**
-     * @param $transporter
-     * @param $packageId
-     * @param $label
-     * @return string
-     */
-    public function savePackageLabel($transporter, $packageId, $label)
-    {
-        $table = self::STORAGE_TABLE_LABEL.$transporter;
-        $this->checkTable($table);
-
-        $path = $this->dirStorage.'/'.$table.'/'.$packageId.'.pdf';
-        file_put_contents($path, $label);
-        return $path;
-    }
-
-    /**
-     * @param $transporter
-     * @param $packageId
-     * @return mixed
-     */
-    public function getPackageLabel($transporter, $packageId)
-    {
-        $table = self::STORAGE_TABLE_LABEL.$transporter;
-
-        $path = $this->dirStorage.'/'.$table.'/'.$packageId.'.pdf';
-        return file_get_contents($path);
-    }
 }

@@ -57,19 +57,4 @@ interface IPackageBotStorage
      * @return mixed
      */
     public function setSend($transporter, $packageId, \DateTime $date);
-
-    /**
-     * @param $transporter
-     * @param $packageId
-     * @param $label
-     * @return string
-     */
-    public function savePackageLabel($transporter, $packageId, $label);
-
-    /**
-     * @param $transporter
-     * @param $packageId
-     * @return mixed
-     */
-    public function getPackageLabel($transporter, $packageId);
 }

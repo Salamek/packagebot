@@ -80,7 +80,7 @@ class PackageBot extends Nette\Object
      * @param PackageBotPackage $package
      * @param PackageBotReceiver $receiver
      * @param string $transporter
-     * @return PackageBotParcelInfo
+     * @return string
      * @throws \Exception
      */
     public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, $transporter = self::TRANSPORTER_CZECH_POST)
@@ -116,12 +116,40 @@ class PackageBot extends Nette\Object
     }
 
     /**
-     * @param $transporter
+     * @param string $transporter
      * @param $packageId
      * @return mixed
+     * @throws \Exception
      */
-    public function getPackageLabel($transporter, $packageId)
+    public function getPackageLabel($transporter = self::TRANSPORTER_CZECH_POST, $packageId)
     {
-        return $this->botStorage->getPackageLabel($transporter, $packageId);
+        if (!array_key_exists($transporter, $this->transporters))
+        {
+            throw new \Exception(sprintf('Transporter %s is not configured', $transporter));
+        }
+
+        if (!$this->transporters[$transporter]['enabled'])
+        {
+            throw new \Exception(sprintf('Transporter %s is not enabled', $transporter));
+        }
+
+
+        switch($transporter)
+        {
+            case self::TRANSPORTER_CZECH_POST:
+            case self::TRANSPORTER_PPL:
+            case self::TRANSPORTER_ULOZENKA:
+                $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
+                /** @var ITransporter $iTransporter */
+                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
+                break;
+
+            default:
+                //@TODO Allow custom transporters here
+                throw new \Exception('Unknow transporter');
+                break;
+        }
+
+        return $iTransporter->doGenerateLabel($packageId);
     }
 }

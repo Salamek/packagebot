@@ -65,4 +65,13 @@ class CzechPostStorage implements ICzechPostStorage
             $this->botStorage->setSend(PackageBot::TRANSPORTER_CZECH_POST, $id, new \DateTime());
         }
     }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function getPackageByPackageId($id)
+    {
+        return $this->botStorage->getPackageByPackageId(PackageBot::TRANSPORTER_CZECH_POST, $id);
+    }
 }

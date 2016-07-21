@@ -55,7 +55,7 @@ class CzechPost implements ITransporter
     /**
      * @param PackageBotPackage $package
      * @param PackageBotReceiver $receiver
-     * @return PackageBotParcelInfo
+     * @return mixed
      * @throws WrongDeliveryDataException
      * @throws \Exception
      */
@@ -68,7 +68,7 @@ class CzechPost implements ITransporter
 
         try {
             $czechPostPackage = new CzechPostPackage($receiver->getCompany(), $receiver->getFirstName(), $receiver->getLastName(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(),
-                $receiver->getStreet(), $receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getCityPart(), $receiver->getCity(),
+                $receiver->getStreet(), $receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getCity(), $receiver->getCityPart(),
                 $receiver->getState(), $package->getCashOnDeliveryPrice(), $package->getGoodsPrice(), [], $package->getBankIdentifier(), $package->getWeight(), $deliveryType[$package->getType()],
                 $package->getDescription());
 
@@ -82,18 +82,24 @@ class CzechPost implements ITransporter
 
         $this->api->persistPackage($czechPostPackage);
 
-        $packageId = $this->api->generatePackageIdentifier($czechPostPackage);
-        $label = $this->api->generatePackageLabel($czechPostPackage);
-
-        $this->botStorage->savePackageLabel(PackageBot::TRANSPORTER_CZECH_POST, $packageId, $label);
-
-        $packageBotParcelInfo = new PackageBotParcelInfo($packageId, $label);
-
-        return $packageBotParcelInfo;
+        return $this->api->generatePackageIdentifier($czechPostPackage);
     }
 
+    /**
+     * @return void
+     */
     public function doFlush()
     {
         $this->api->flushPackages();
+    }
+
+    /**
+     * @param $id
+     * @return string
+     * @throws \Exception
+     */
+    public function doGenerateLabel($id)
+    {
+        return $this->api->genetatePackageLabelByPackageId($id);
     }
 }

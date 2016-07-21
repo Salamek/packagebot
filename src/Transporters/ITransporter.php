@@ -27,5 +27,14 @@ interface ITransporter
      */
     public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver);
 
+    /**
+     * @return mixed
+     */
     public function doFlush();
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function doGenerateLabel($id);
 }
