@@ -32,6 +32,9 @@ class PackageBot extends Nette\Object
     const TRANSPORTER_PPL = 'ppl';
     const TRANSPORTER_ULOZENKA = 'ulozenka';
 
+    const PACKAGE_LABEL_FULL = 1;
+    const PACKAGE_LABEL_QUARTER = 2;
+
     /**
      * PackageBot constructor.
      * @param Nette\Caching\IStorage $cacheStorage
@@ -116,12 +119,13 @@ class PackageBot extends Nette\Object
     }
 
     /**
-     * @param string $transporter
      * @param $packageId
+     * @param string $transporter
+     * @param int $decomposition
      * @return mixed
      * @throws \Exception
      */
-    public function getPackageLabel($transporter = self::TRANSPORTER_CZECH_POST, $packageId)
+    public function getPackageLabel($packageId, $transporter = self::TRANSPORTER_CZECH_POST, $decomposition = self::PACKAGE_LABEL_QUARTER)
     {
         if (!array_key_exists($transporter, $this->transporters))
         {
@@ -150,6 +154,6 @@ class PackageBot extends Nette\Object
                 break;
         }
 
-        return $iTransporter->doGenerateLabel($packageId);
+        return $iTransporter->doGenerateLabel($packageId, $decomposition);
     }
 }

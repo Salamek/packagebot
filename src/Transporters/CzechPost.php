@@ -95,11 +95,13 @@ class CzechPost implements ITransporter
 
     /**
      * @param $id
+     * @param $decomposition
      * @return string
      * @throws \Exception
      */
-    public function doGenerateLabel($id)
+    public function doGenerateLabel($id, $decomposition)
     {
+        $decompositionCzechPost = CzechPostApi::LABEL_DISTRIBUTION_FULL
         return $this->api->genetatePackageLabelByPackageId($id);
     }
 }

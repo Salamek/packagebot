@@ -23,7 +23,7 @@ interface ITransporter
     /**
      * @param PackageBotPackage $package
      * @param PackageBotReceiver $receiver
-     * @return PackageBotParcelInfo
+     * @return int
      */
     public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver);
 
@@ -34,7 +34,8 @@ interface ITransporter
 
     /**
      * @param $id
+     * @param $decomposition
      * @return mixed
      */
-    public function doGenerateLabel($id);
+    public function doGenerateLabel($id, $decomposition);
 }
