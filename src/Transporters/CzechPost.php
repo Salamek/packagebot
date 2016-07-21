@@ -101,7 +101,17 @@ class CzechPost implements ITransporter
      */
     public function doGenerateLabel($id, $decomposition)
     {
-        $decompositionCzechPost = CzechPostApi::LABEL_DISTRIBUTION_FULL
-        return $this->api->genetatePackageLabelByPackageId($id);
+        switch ($decomposition)
+        {
+            case PackageBot::PACKAGE_LABEL_QUARTER:
+                $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_QUARTER;
+                break;
+
+            case PackageBot::PACKAGE_LABEL_FULL:
+                $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_FULL;
+                break;
+        }
+
+        return $this->api->genetatePackageLabelByPackageId($id, null, CzechPostApi::LABEL_FORMAT_RAW, $decompositionCzechPost);
     }
 }
