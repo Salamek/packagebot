@@ -43,8 +43,6 @@ class PackageBotReceiver
     /** @var  string */
     private $state;
 
-    private $stateCode;
-
     /** @var  string */
     private $company;
 
@@ -82,8 +80,7 @@ class PackageBotReceiver
         $zipCode,
         $city,
         $cityPart,
-        $state,
-        $stateCode
+        $state
     ) {
         $this->setFirstName($firstName);
         $this->setLastName($lastName);
@@ -97,7 +94,6 @@ class PackageBotReceiver
         $this->setCity($city);
         $this->setCityPart($cityPart);
         $this->setState($state);
-        $this->setStateCode($stateCode);
     }
 
     /**
@@ -174,9 +170,15 @@ class PackageBotReceiver
 
     /**
      * @param string $state
+     * @throws WrongDeliveryDataException
      */
     public function setState($state)
     {
+        if (!in_array($state, PackageBotDial::$supportedCountryCodes))
+        {
+            throw new WrongDeliveryDataException('Unsupported country code, supported codes are '.implode(' ,', PackageBotDial::$supportedCountryCodes));
+        }
+
         $this->state = $state;
     }
 
@@ -218,20 +220,6 @@ class PackageBotReceiver
     public function setCompanyVatId($companyVatId)
     {
         $this->companyVatId = $companyVatId;
-    }
-
-    /**
-     * @param $stateCode
-     * @throws WrongDeliveryDataException
-     */
-    public function setStateCode($stateCode)
-    {
-        if (!in_array($stateCode, PackageBotDial::$supportedCountryCodes))
-        {
-            throw new WrongDeliveryDataException('Unsupported country code, supported codes are '.implode(' ,', PackageBotDial::$supportedCountryCodes));
-        }
-
-        $this->stateCode = $stateCode;
     }
 
     /**
@@ -353,13 +341,5 @@ class PackageBotReceiver
     public function getCompanyVatId()
     {
         return $this->companyVatId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStateCode()
-    {
-        return $this->stateCode;
     }
 }

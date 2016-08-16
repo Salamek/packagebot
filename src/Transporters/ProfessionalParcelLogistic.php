@@ -56,7 +56,7 @@ class ProfessionalParcelLogistic implements ITransporter
         $this->depoCode = $configuration['depoCode'];
         $this->botStorage = $botStorage;
         
-        $this->professionalParcelLogisticSender = new ProfessionalParcelLogisticSender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], $sender['www'], $sender['countryCode']);
+        $this->professionalParcelLogisticSender = new ProfessionalParcelLogisticSender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], $sender['www'], $sender['country']);
 
         $this->api = new ProfessionalParcelLogisticApi($this->username, $this->password, $this->customerId, new ProfessionalParcelLogisticStorage($this->botStorage));
     }
@@ -83,7 +83,7 @@ class ProfessionalParcelLogistic implements ITransporter
                 $professionalParcelLogisticPaymentInfo = null;
             }
 
-            $professionalParcelLogisticRecipient = new ProfessionalParcelLogisticRecipient($receiver->getCity(), $receiver->getFirstName().' '.$receiver->getLastName(), $receiver->getStreet().' '.$receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(), $receiver->getStateCode(), $receiver->getCompany());
+            $professionalParcelLogisticRecipient = new ProfessionalParcelLogisticRecipient($receiver->getCity(), $receiver->getFirstName().' '.$receiver->getLastName(), $receiver->getStreet().' '.$receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(), $receiver->getState(), $receiver->getCompany());
 
             $professionalParcelLogisticPackage = new ProfessionalParcelLogisticPackage($package->getOrderId(), null, $packageProductType, $package->getWeight(), $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo);
 
