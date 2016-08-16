@@ -9,6 +9,7 @@ use Salamek\PackageBot\IPackageBotStorage;
 use Salamek\PackageBot\PackageBot;
 use Salamek\PackageBot\PackageBotPackage;
 use Salamek\PackageBot\PackageBotParcelInfo;
+use Salamek\PackageBot\PackageBotPaymentInfo;
 use Salamek\PackageBot\PackageBotReceiver;
 use Salamek\PackageBot\WrongDeliveryDataException;
 
@@ -55,21 +56,33 @@ class CzechPost implements ITransporter
     /**
      * @param PackageBotPackage $package
      * @param PackageBotReceiver $receiver
+     * @param PackageBotPaymentInfo $paymentInfo
      * @return mixed
      * @throws WrongDeliveryDataException
      * @throws \Exception
      */
-    public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver)
+    public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null)
     {
         $deliveryType = [
             PackageBotPackage::DELIVERY_TYPE_DELIVER => CzechPostPackage::DELIVERY_TYPE_DELIVER,
             PackageBotPackage::DELIVERY_TYPE_STORE => CzechPostPackage::DELIVERY_TYPE_STORE
         ];
 
+        if (!is_null($paymentInfo))
+        {
+            $cashOnDeliveryPrice = $paymentInfo->getCashOnDeliveryPrice();
+            $bankIdentifier = $paymentInfo->getBankIdentifier();
+        }
+        else
+        {
+            $cashOnDeliveryPrice = 0;
+            $bankIdentifier = '';
+        }
+
         try {
             $czechPostPackage = new CzechPostPackage($receiver->getCompany(), $receiver->getFirstName(), $receiver->getLastName(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(),
                 $receiver->getStreet(), $receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getCity(), $receiver->getCityPart(),
-                $receiver->getState(), $package->getCashOnDeliveryPrice(), $package->getGoodsPrice(), [], $package->getBankIdentifier(), $package->getWeight(), $deliveryType[$package->getType()],
+                $receiver->getState(), $cashOnDeliveryPrice, $package->getGoodsPrice(), [], $bankIdentifier, $package->getWeight(), $deliveryType[$package->getType()],
                 $package->getDescription());
 
             $czechPostPackage->setWidth($package->getWidth());
@@ -107,6 +120,7 @@ class CzechPost implements ITransporter
                 $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_QUARTER;
                 break;
 
+            default:
             case PackageBot::PACKAGE_LABEL_FULL:
                 $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_FULL;
                 break;

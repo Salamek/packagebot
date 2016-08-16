@@ -10,28 +10,22 @@ class PackageBotPackage
     /** @var integer */
     private $id;
 
-    /** @var  int */
+    /** @var int */
     private $orderId;
 
-    /** @var  int */
-    private $cashOnDeliveryPrice;
-
-    /** @var  int */
+    /** @var int */
     private $goodsPrice;
 
-    /** @var  array */
+    /** @var array */
     private $services = [];
 
-    /** @var  string */
-    private $bankIdentifier;
-
-    /** @var  int */
+    /** @var int */
     private $weight;
 
-    /** @var  integer */
+    /** @var integer */
     private $type;
 
-    /** @var  string */
+    /** @var string */
     private $description;
 
     /** @var null|int */
@@ -49,26 +43,21 @@ class PackageBotPackage
 
     /**
      * PackageBotPackage constructor.
-     * @param $cashOnDeliveryPrice
-     * @param $goodsPrice
-     * @param string $bankIdentifier
+     * @param $orderId
+     * @param int $goodsPrice
      * @param int $weight
      * @param string $type
      * @param string $description
      */
     public function __construct(
         $orderId,
-        $cashOnDeliveryPrice,
-        $goodsPrice,
-        $bankIdentifier = '',
+        $goodsPrice = 0,
         $weight = 0,
         $type = self::DELIVERY_TYPE_DELIVER,
         $description = ''
     ) {
         $this->setOrderId($orderId);
-        $this->setCashOnDeliveryPrice($cashOnDeliveryPrice);
         $this->setGoodsPrice($goodsPrice);
-        $this->setBankIdentifier($bankIdentifier);
         $this->setType($type);
         $this->setWeight($weight);
         $this->setDescription($description);
@@ -80,6 +69,15 @@ class PackageBotPackage
     public function setOrderId($orderId)
     {
         $this->orderId = $orderId;
+    }
+
+
+    /**
+     * @param int $goodsPrice
+     */
+    public function setGoodsPrice($goodsPrice)
+    {
+        $this->goodsPrice = $goodsPrice;
     }
 
     /**
@@ -107,35 +105,11 @@ class PackageBotPackage
     }
 
     /**
-     * @param $cashOnDeliveryPrice
-     */
-    public function setCashOnDeliveryPrice($cashOnDeliveryPrice)
-    {
-        $this->cashOnDeliveryPrice = $cashOnDeliveryPrice;
-    }
-
-    /**
-     * @param int $goodsPrice
-     */
-    public function setGoodsPrice($goodsPrice)
-    {
-        $this->goodsPrice = $goodsPrice;
-    }
-
-    /**
      * @param array $services
      */
     public function setServices(array $services)
     {
         $this->services = $services;
-    }
-
-    /**
-     * @param string $bankIdentifier
-     */
-    public function setBankIdentifier($bankIdentifier)
-    {
-        $this->bankIdentifier = $bankIdentifier;
     }
 
     /**
@@ -196,35 +170,11 @@ class PackageBotPackage
     }
 
     /**
-     * @return int
-     */
-    public function getCashOnDeliveryPrice()
-    {
-        return $this->cashOnDeliveryPrice;
-    }
-
-    /**
-     * @return int
-     */
-    public function getGoodsPrice()
-    {
-        return $this->goodsPrice;
-    }
-
-    /**
      * @return array
      */
     public function getServices()
     {
         return $this->services;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBankIdentifier()
-    {
-        return $this->bankIdentifier;
     }
 
     /**
@@ -265,5 +215,13 @@ class PackageBotPackage
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGoodsPrice()
+    {
+        return $this->goodsPrice;
     }
 }

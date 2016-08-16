@@ -23,6 +23,9 @@ packageBot:
     zipCode: 783 36
     cityPart: Křelov-Břuchotín
     city: Křelov
+    countryCode: cz
+    email: info@grizly.cz
+    phone: 725473077
   transporters:
     czechPost:
       enabled: false
@@ -31,10 +34,12 @@ packageBot:
       username:
       password:
 
-    ppl:
-      enabled: false
+    professionalParcelLogistic:
+      enabled: true
       username:
       password:
+      customerId: 1860940
+      depoCode: 09
 
     ulozenka:
       enabled: false
