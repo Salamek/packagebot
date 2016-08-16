@@ -29,7 +29,7 @@ class PackageBot extends Nette\Object
     private $cache;
     
     const TRANSPORTER_CZECH_POST = 'czechPost';
-    const TRANSPORTER_PPL = 'ppl';
+    const TRANSPORTER_PPL = 'professionalParcelLogistic';
     const TRANSPORTER_ULOZENKA = 'ulozenka';
 
     const PACKAGE_LABEL_FULL = 1;
@@ -82,11 +82,12 @@ class PackageBot extends Nette\Object
     /**
      * @param PackageBotPackage $package
      * @param PackageBotReceiver $receiver
+     * @param PackageBotPaymentInfo $paymentInfo
      * @param string $transporter
      * @return string
      * @throws \Exception
      */
-    public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, $transporter = self::TRANSPORTER_CZECH_POST)
+    public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null, $transporter = self::TRANSPORTER_CZECH_POST)
     {
         if (!array_key_exists($transporter, $this->transporters))
         {
@@ -115,7 +116,7 @@ class PackageBot extends Nette\Object
                 break;
         }
 
-        return $iTransporter->doParcel($package, $receiver);
+        return $iTransporter->doParcel($package, $receiver, $paymentInfo);
     }
 
     /**
