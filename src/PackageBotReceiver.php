@@ -66,7 +66,6 @@ class PackageBotReceiver
      * @param $city
      * @param $cityPart
      * @param $state
-     * @param $stateCode
      */
     public function __construct(
         $company,

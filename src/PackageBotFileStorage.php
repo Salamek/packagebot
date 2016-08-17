@@ -105,10 +105,10 @@ class PackageBotFileStorage implements IPackageBotStorage
      * @param $orderId
      * @param $packageId
      * @param $packageData
-     * @param \DateTime|null $send
+     * @param \DateTimeInterface|null $send
      * @return void
      */
-    public function savePackage($transporter, $orderId, $packageId, $packageData, \DateTime $send = null)
+    public function savePackage($transporter, $orderId, $packageId, $packageData, \DateTimeInterface $send = null)
     {
         $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId, $packageData);
     }
@@ -152,10 +152,10 @@ class PackageBotFileStorage implements IPackageBotStorage
     /**
      * @param $transporter
      * @param $packageId
-     * @param \DateTime $date
+     * @param \DateTimeInterface $date
      * @return void
      */
-    public function setSend($transporter, $packageId, \DateTime $date)
+    public function setSend($transporter, $packageId, \DateTimeInterface $date)
     {
         $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId, null);
     }

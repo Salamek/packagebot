@@ -6,8 +6,8 @@
 namespace Salamek\PackageBot\Transporters;
 
 
+use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\IPackageBotStorage;
-use Salamek\PackageBot\PackageBot;
 use Salamek\ICzechPostStorage;
 use Salamek\CzechPostPackage;
 use Salamek\CzechPostSender;
@@ -32,7 +32,7 @@ class CzechPostStorage implements ICzechPostStorage
      */
     public function savePackageToSend($id, CzechPostPackage $package)
     {
-        $this->botStorage->savePackage(PackageBot::TRANSPORTER_CZECH_POST, $package->getOrderId(), $id, $package, null);
+        $this->botStorage->savePackage(Transporter::CZECH_POST, $package->getOrderId(), $id, $package, null);
     }
 
     /**
@@ -40,7 +40,7 @@ class CzechPostStorage implements ICzechPostStorage
      */
     public function getPackagesToSend()
     {
-        return $this->botStorage->getUnSendPackages(PackageBot::TRANSPORTER_CZECH_POST);
+        return $this->botStorage->getUnSendPackages(Transporter::CZECH_POST);
     }
 
     /**
@@ -51,7 +51,7 @@ class CzechPostStorage implements ICzechPostStorage
      */
     public function getNextPackageId(CzechPostPackage $package, CzechPostSender $sender, $year)
     {
-        return $this->botStorage->getNextPackageId(PackageBot::TRANSPORTER_CZECH_POST, $package->getType(), $sender->getType().$sender->getId(), $year);
+        return $this->botStorage->getNextPackageId(Transporter::CZECH_POST, $package->getType(), $sender->getType().$sender->getId(), $year);
     }
 
     /**
@@ -62,7 +62,7 @@ class CzechPostStorage implements ICzechPostStorage
     {
         foreach ($ids AS $id)
         {
-            $this->botStorage->setSend(PackageBot::TRANSPORTER_CZECH_POST, $id, new \DateTime());
+            $this->botStorage->setSend(Transporter::CZECH_POST, $id, new \DateTime());
         }
     }
 
@@ -72,6 +72,6 @@ class CzechPostStorage implements ICzechPostStorage
      */
     public function getPackageByPackageId($id)
     {
-        return $this->botStorage->getPackageByPackageId(PackageBot::TRANSPORTER_CZECH_POST, $id);
+        return $this->botStorage->getPackageByPackageId(Transporter::CZECH_POST, $id);
     }
 }

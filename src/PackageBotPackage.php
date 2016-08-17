@@ -5,6 +5,8 @@
 
 namespace Salamek\PackageBot;
 
+use Salamek\PackageBot\Enum\TransportService;
+
 class PackageBotPackage
 {
     /** @var integer */
@@ -37,23 +39,19 @@ class PackageBotPackage
     /** @var null|int */
     private $length = null;
 
-    const DELIVERY_TYPE_STORE = 'DELIVERY_TYPE_STORE';
-    const DELIVERY_TYPE_DELIVER = 'DELIVERY_TYPE_DELIVER';
-
-
     /**
      * PackageBotPackage constructor.
      * @param $orderId
      * @param int $goodsPrice
      * @param int $weight
-     * @param string $type
+     * @param int $type
      * @param string $description
      */
     public function __construct(
         $orderId,
         $goodsPrice = 0,
         $weight = 0,
-        $type = self::DELIVERY_TYPE_DELIVER,
+        $type = TransportService::DELIVER,
         $description = ''
     ) {
         $this->setOrderId($orderId);

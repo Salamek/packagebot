@@ -7,6 +7,7 @@ namespace Salamek\PackageBot\Transporters;
 
 
 use Salamek\IProfessionalParcelLogisticStorage;
+use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\IPackageBotStorage;
 use Salamek\PackageBot\PackageBot;
 use Salamek\ProfessionalParcelLogisticPackage;
@@ -31,7 +32,7 @@ class ProfessionalParcelLogisticStorage implements IProfessionalParcelLogisticSt
      */
     public function savePackageToSend($id, ProfessionalParcelLogisticPackage $package)
     {
-        $this->botStorage->savePackage(PackageBot::TRANSPORTER_PPL, $package->getOrderId(), $id, $package, null);
+        $this->botStorage->savePackage(Transporter::PPL, $package->getOrderId(), $id, $package, null);
     }
 
     /**
@@ -39,7 +40,7 @@ class ProfessionalParcelLogisticStorage implements IProfessionalParcelLogisticSt
      */
     public function getPackagesToSend()
     {
-        return $this->botStorage->getUnSendPackages(PackageBot::TRANSPORTER_PPL);
+        return $this->botStorage->getUnSendPackages(Transporter::PPL);
     }
 
     /**
@@ -50,7 +51,7 @@ class ProfessionalParcelLogisticStorage implements IProfessionalParcelLogisticSt
      */
     public function getNextPackageId(ProfessionalParcelLogisticPackage $package, $customerId, $year)
     {
-        return $this->botStorage->getNextPackageId(PackageBot::TRANSPORTER_PPL, $package->getPackageProductType(), $customerId, $year);
+        return $this->botStorage->getNextPackageId(Transporter::PPL, $package->getPackageProductType(), $customerId, $year);
     }
 
     /**
@@ -61,7 +62,7 @@ class ProfessionalParcelLogisticStorage implements IProfessionalParcelLogisticSt
     {
         foreach ($ids AS $id)
         {
-            $this->botStorage->setSend(PackageBot::TRANSPORTER_PPL, $id, new \DateTime());
+            $this->botStorage->setSend(Transporter::PPL, $id, new \DateTime());
         }
     }
 
@@ -71,6 +72,6 @@ class ProfessionalParcelLogisticStorage implements IProfessionalParcelLogisticSt
      */
     public function getPackageByPackageId($id)
     {
-        return $this->botStorage->getPackageByPackageId(PackageBot::TRANSPORTER_PPL, $id);
+        return $this->botStorage->getPackageByPackageId(Transporter::PPL, $id);
     }
 }

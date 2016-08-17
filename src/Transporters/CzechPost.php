@@ -5,10 +5,10 @@ use Salamek\CzechPostApi;
 use Salamek\CzechPostPackage;
 use Salamek\CzechPostPackageWrongDataException;
 use Salamek\CzechPostSender;
+use Salamek\PackageBot\Enum\Attribute\LabelAttr;
+use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\IPackageBotStorage;
-use Salamek\PackageBot\PackageBot;
 use Salamek\PackageBot\PackageBotPackage;
-use Salamek\PackageBot\PackageBotParcelInfo;
 use Salamek\PackageBot\PackageBotPaymentInfo;
 use Salamek\PackageBot\PackageBotReceiver;
 use Salamek\PackageBot\WrongDeliveryDataException;
@@ -64,8 +64,8 @@ class CzechPost implements ITransporter
     public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null)
     {
         $deliveryType = [
-            PackageBotPackage::DELIVERY_TYPE_DELIVER => CzechPostPackage::DELIVERY_TYPE_DELIVER,
-            PackageBotPackage::DELIVERY_TYPE_STORE => CzechPostPackage::DELIVERY_TYPE_STORE
+            TransportService::DELIVER => CzechPostPackage::DELIVERY_TYPE_DELIVER,
+            TransportService::STORE => CzechPostPackage::DELIVERY_TYPE_STORE
         ];
 
         if (!is_null($paymentInfo))
@@ -116,12 +116,12 @@ class CzechPost implements ITransporter
     {
         switch ($decomposition)
         {
-            case PackageBot::PACKAGE_LABEL_QUARTER:
+            case LabelAttr::DECOMPOSITION_QUARTER:
                 $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_QUARTER;
                 break;
 
             default:
-            case PackageBot::PACKAGE_LABEL_FULL:
+            case LabelAttr::DECOMPOSITION_FULL:
                 $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_FULL;
                 break;
         }

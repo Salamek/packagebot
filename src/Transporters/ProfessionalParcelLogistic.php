@@ -2,6 +2,7 @@
 namespace Salamek\PackageBot\Transporters;
 
 use Salamek\MyApi\Dial;
+use Salamek\PackageBot\Enum\Attribute\LabelAttr;
 use Salamek\PackageBot\IPackageBotStorage;
 use Salamek\PackageBot\PackageBot;
 use Salamek\PackageBot\PackageBotPackage;
@@ -56,7 +57,7 @@ class ProfessionalParcelLogistic implements ITransporter
         $this->depoCode = $configuration['depoCode'];
         $this->botStorage = $botStorage;
         
-        $this->professionalParcelLogisticSender = new ProfessionalParcelLogisticSender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], $sender['www'], $sender['country']);
+        $this->professionalParcelLogisticSender = new ProfessionalParcelLogisticSender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
 
         $this->api = new ProfessionalParcelLogisticApi($this->username, $this->password, $this->customerId, new ProfessionalParcelLogisticStorage($this->botStorage));
     }
@@ -83,7 +84,7 @@ class ProfessionalParcelLogistic implements ITransporter
                 $professionalParcelLogisticPaymentInfo = null;
             }
 
-            $professionalParcelLogisticRecipient = new ProfessionalParcelLogisticRecipient($receiver->getCity(), $receiver->getFirstName().' '.$receiver->getLastName(), $receiver->getStreet().' '.$receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(), $receiver->getState(), $receiver->getCompany());
+            $professionalParcelLogisticRecipient = new ProfessionalParcelLogisticRecipient($receiver->getCity(), $receiver->getCompany(), $receiver->getStreet().' '.$receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getFirstName().' '.$receiver->getLastName(), $receiver->getState(), $receiver->getWww());
 
             $professionalParcelLogisticPackage = new ProfessionalParcelLogisticPackage($package->getOrderId(), null, $packageProductType, $package->getWeight(), $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo);
 
@@ -114,12 +115,12 @@ class ProfessionalParcelLogistic implements ITransporter
     {
         switch ($decomposition)
         {
-            case PackageBot::PACKAGE_LABEL_QUARTER:
+            case LabelAttr::DECOMPOSITION_QUARTER:
                 $decompositionProfessionalParcelLogistic = ProfessionalParcelLogisticApi::LABEL_DECOMPOSITION_QUARTER;
                 break;
 
             default:
-            case PackageBot::PACKAGE_LABEL_FULL:
+            case LabelAttr::DECOMPOSITION_FULL:
                 $decompositionProfessionalParcelLogistic = ProfessionalParcelLogisticApi::LABEL_DECOMPOSITION_FULL;
                 break;
         }

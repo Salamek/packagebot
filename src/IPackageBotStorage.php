@@ -16,10 +16,10 @@ interface IPackageBotStorage
      * @param $orderId
      * @param $packageId
      * @param $packageData
-     * @param \DateTime|null $send
+     * @param \DateTimeInterface|null $send
      * @return mixed
      */
-    public function savePackage($transporter, $orderId, $packageId, $packageData, \DateTime $send = null);
+    public function savePackage($transporter, $orderId, $packageId, $packageData, \DateTimeInterface $send = null);
 
     /**
      * @param $transporter
@@ -54,8 +54,8 @@ interface IPackageBotStorage
     /**
      * @param $transporter
      * @param $packageId
-     * @param \DateTime $date
+     * @param \DateTimeInterface $date
      * @return mixed
      */
-    public function setSend($transporter, $packageId, \DateTime $date);
+    public function setSend($transporter, $packageId, \DateTimeInterface $date);
 }

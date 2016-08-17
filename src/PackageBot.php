@@ -4,10 +4,9 @@ namespace Salamek\PackageBot;
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-use Salamek\PackageBot\Transporters\CzechPost;
+use Salamek\PackageBot\Enum\Attribute\LabelAttr;
+use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\Transporters\ITransporter;
-use Salamek\PackageBot\Transporters\Ppl;
-use Salamek\PackageBot\Transporters\Ulozenka;
 use Nette;
 
 class PackageBot extends Nette\Object
@@ -27,13 +26,6 @@ class PackageBot extends Nette\Object
 
     /** @var Nette\Caching\Cache */
     private $cache;
-    
-    const TRANSPORTER_CZECH_POST = 'czechPost';
-    const TRANSPORTER_PPL = 'professionalParcelLogistic';
-    const TRANSPORTER_ULOZENKA = 'ulozenka';
-
-    const PACKAGE_LABEL_FULL = 1;
-    const PACKAGE_LABEL_QUARTER = 2;
 
     /**
      * PackageBot constructor.
@@ -87,7 +79,7 @@ class PackageBot extends Nette\Object
      * @return string
      * @throws \Exception
      */
-    public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null, $transporter = self::TRANSPORTER_CZECH_POST)
+    public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null, $transporter = Transporter::CZECH_POST)
     {
         if (!array_key_exists($transporter, $this->transporters))
         {
@@ -102,16 +94,16 @@ class PackageBot extends Nette\Object
 
         switch($transporter)
         {
-            case self::TRANSPORTER_CZECH_POST:
-            case self::TRANSPORTER_PPL:
-            case self::TRANSPORTER_ULOZENKA:
+            case Transporter::CZECH_POST:
+            case Transporter::PPL:
+            case Transporter::ULOZENKA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
                 $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
                 break;
 
             default:
-                //@TODO Allow custom transporters here
+                //@TODO Allow custom transporters here ?
                 throw new \Exception('Unknow transporter');
                 break;
         }
@@ -126,7 +118,7 @@ class PackageBot extends Nette\Object
      * @return mixed
      * @throws \Exception
      */
-    public function getPackageLabel($packageId, $transporter = self::TRANSPORTER_CZECH_POST, $decomposition = self::PACKAGE_LABEL_QUARTER)
+    public function getPackageLabel($packageId, $transporter = Transporter::CZECH_POST, $decomposition = LabelAttr::DECOMPOSITION_QUARTER)
     {
         if (!array_key_exists($transporter, $this->transporters))
         {
@@ -141,9 +133,9 @@ class PackageBot extends Nette\Object
 
         switch($transporter)
         {
-            case self::TRANSPORTER_CZECH_POST:
-            case self::TRANSPORTER_PPL:
-            case self::TRANSPORTER_ULOZENKA:
+            case Transporter::CZECH_POST:
+            case Transporter::PPL:
+            case Transporter::ULOZENKA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
                 $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
