@@ -46,6 +46,7 @@ interface IPackageBotStorage
      * @param null $packageType
      * @param null $sender
      * @param null $year
+     * @throws NumberSeriesWasted
      * @return mixed
      */
     public function getNextPackageId($transporter, $packageType = null, $sender = null, $year = null);

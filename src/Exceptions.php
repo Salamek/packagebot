@@ -18,7 +18,16 @@ class AuthException extends \Exception
  * Class WrongDeliveryDataException
  * @package Salamek\PackageBot
  */
-class WrongDeliveryDataException  extends \Exception
+class WrongDeliveryDataException extends \Exception
+{
+
+}
+
+/**
+ * Class NumberSeriesWasted
+ * @package Salamek\PackageBot
+ */
+class NumberSeriesWasted extends \Exception
 {
 
 }
