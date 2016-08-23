@@ -3,9 +3,9 @@
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-namespace Salamek\PackageBot;
+namespace Salamek\PackageBot\Model;
 
-class PackageBotReceiver
+class Recipient
 {
     /** @var integer */
     private $id;
@@ -40,8 +40,8 @@ class PackageBotReceiver
     /** @var  string */
     private $cityPart;
 
-    /** @var  string */
-    private $state;
+    /** @var string */
+    private $country;
 
     /** @var  string */
     private $company;
@@ -53,7 +53,7 @@ class PackageBotReceiver
     private $companyVatId = null;
 
     /**
-     * PackageBotReceiver constructor.
+     * Recipient constructor.
      * @param $company
      * @param $firstName
      * @param $lastName
@@ -92,7 +92,7 @@ class PackageBotReceiver
         $this->setZipCode($zipCode);
         $this->setCity($city);
         $this->setCityPart($cityPart);
-        $this->setState($state);
+        $this->setCountry($state);
     }
 
     /**
@@ -168,17 +168,17 @@ class PackageBotReceiver
     }
 
     /**
-     * @param string $state
+     * @param string $country
      * @throws WrongDeliveryDataException
      */
-    public function setState($state)
+    public function setCountry($country)
     {
-        if (!in_array($state, PackageBotDial::$supportedCountryCodes))
+        if (!in_array($country, PackageBotDial::$supportedCountryCodes))
         {
             throw new WrongDeliveryDataException('Unsupported country code, supported codes are '.implode(' ,', PackageBotDial::$supportedCountryCodes));
         }
 
-        $this->state = $state;
+        $this->country = $country;
     }
 
     /**
@@ -297,9 +297,9 @@ class PackageBotReceiver
     /**
      * @return string
      */
-    public function getState()
+    public function getCountry()
     {
-        return $this->state;
+        return $this->country;
     }
 
     /**

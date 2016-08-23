@@ -3,10 +3,10 @@
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-namespace Salamek\PackageBot;
+namespace Salamek\PackageBot\Model;
 
 
-class PackageBotPaymentInfo
+class PaymentInfo
 {
     /** @var int */
     private $cashOnDeliveryPrice;

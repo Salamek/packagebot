@@ -11,4 +11,11 @@ class Transporter
     const CZECH_POST = 'czechPost';
     const PPL = 'professionalParcelLogistic';
     const ULOZENKA = 'ulozenka';
+
+    /** @var array */
+    public static $list = [
+        self::CZECH_POST,
+        self::PPL,
+        self::ULOZENKA
+    ];
 }

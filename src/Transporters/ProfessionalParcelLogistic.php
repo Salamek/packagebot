@@ -1,21 +1,21 @@
 <?php
 namespace Salamek\PackageBot\Transporters;
 
-use Salamek\MyApi\Dial;
-use Salamek\PackageBot\Enum\Attribute\LabelAttr;
+use Salamek\PackageBot\Enum\LabelPosition;
+use Salamek\PackageBot\Enum\TransportService;
+use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PplMyApi\Api;
+use Salamek\PplMyApi\Enum\Product;
+use Salamek\PplMyApi\Exception\WrongDataException;
+use Salamek\PplMyApi\Label;
+use Salamek\PplMyApi\Model\Package as TransporterPackage;
+use Salamek\PplMyApi\Model\PaymentInfo;
+use Salamek\PplMyApi\Model\Recipient;
+use Salamek\PplMyApi\Model\Sender;
+
+use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\IPackageBotStorage;
-use Salamek\PackageBot\PackageBot;
-use Salamek\PackageBot\PackageBotPackage;
-use Salamek\PackageBot\PackageBotParcelInfo;
-use Salamek\PackageBot\PackageBotPaymentInfo;
-use Salamek\PackageBot\PackageBotReceiver;
-use Salamek\ProfessionalParcelLogisticApi;
-use Salamek\ProfessionalParcelLogisticPackage;
-use Salamek\ProfessionalParcelLogisticPaymentInfo;
-use Salamek\ProfessionalParcelLogisticRecipient;
-use Salamek\ProfessionalParcelLogisticSender;
-use Salamek\PackageBot\WrongDeliveryDataException;
-use Salamek\ProfessionalParcelLogisticWrongDataException;
+
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -37,9 +37,10 @@ class ProfessionalParcelLogistic implements ITransporter
     /** @var IPackageBotStorage  */
     private $botStorage;
 
-    /** @var ProfessionalParcelLogisticApi */
+    /** @var Api */
     private $api;
-    
+
+    /** @var Sender */
     private $professionalParcelLogisticSender;
 
     /**
@@ -51,80 +52,108 @@ class ProfessionalParcelLogistic implements ITransporter
      */
     public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar)
     {
-        $this->customerId = $configuration['customerId'];
+        $this->customerId = $configuration['senderId'];
         $this->username = $configuration['username'];
         $this->password = $configuration['password'];
         $this->depoCode = $configuration['depoCode'];
         $this->botStorage = $botStorage;
         
-        $this->professionalParcelLogisticSender = new ProfessionalParcelLogisticSender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
+        $this->professionalParcelLogisticSender = new Sender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
 
-        $this->api = new ProfessionalParcelLogisticApi($this->username, $this->password, $this->customerId, new ProfessionalParcelLogisticStorage($this->botStorage));
+        $this->api = new Api($this->username, $this->password, $this->customerId);
     }
 
     /**
-     * @param PackageBotPackage $package
-     * @param PackageBotReceiver $receiver
-     * @param PackageBotPaymentInfo $paymentInfo
-     * @return mixed
+     * @param Package $package
+     * @return TransporterPackage
      * @throws WrongDeliveryDataException
-     * @throws \Exception
      */
-    public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null)
+    public function packageBotPackageToTransporterPackage(Package $package)
     {
-        try {
-            if (!is_null($paymentInfo))
+        try
+        {
+            switch ($package->getTransportService())
             {
-                $packageProductType = Dial::PRODUCT_TYPE_PPL_PARCEL_CZ_PRIVATE_COD;
-                $professionalParcelLogisticPaymentInfo = new ProfessionalParcelLogisticPaymentInfo($paymentInfo->getCashOnDeliveryPrice(), $paymentInfo->getCashOnDeliveryCurrency(), $paymentInfo->getBankIdentifier());
+                default:
+                case TransportService::PPL_PARCEL_CZ_PRIVATE:
+                    if (!is_null($package->getPaymentInfo())) {
+                        $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE_COD;
+                    }else
+                    {
+                        $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE;
+                    }
+                    break;
+            }
+
+            if (!is_null($package->getPaymentInfo()))
+            {
+                $professionalParcelLogisticPaymentInfo = new PaymentInfo($package->getPaymentInfo()->getCashOnDeliveryPrice(), $package->getPaymentInfo()->getCashOnDeliveryCurrency(), $package->getPaymentInfo()->getBankIdentifier());
             }
             else
             {
-                $packageProductType = Dial::PRODUCT_TYPE_PPL_PARCEL_CZ_PRIVATE;
                 $professionalParcelLogisticPaymentInfo = null;
             }
+            $professionalParcelLogisticRecipient = new Recipient($package->getRecipient()->getCity(), $package->getRecipient()->getCompany(), $package->getRecipient()->getStreet().' '.$package->getRecipient()->getStreetNumber(), $package->getRecipient()->getZipCode(), $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName(), $package->getRecipient()->getCountry(), $package->getRecipient()->getWww());
 
-            $professionalParcelLogisticRecipient = new ProfessionalParcelLogisticRecipient($receiver->getCity(), $receiver->getCompany(), $receiver->getStreet().' '.$receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getFirstName().' '.$receiver->getLastName(), $receiver->getState(), $receiver->getWww());
+            if (!is_null($package->getWeightedPackageInfo()))
+            {
+                $weight = $package->getWeightedPackageInfo()->getWeight();
+            }
+            else
+            {
+                $weight = null;
+            }
 
-            $professionalParcelLogisticPackage = new ProfessionalParcelLogisticPackage($package->getOrderId(), null, $packageProductType, $package->getWeight(), $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo);
+            return new TransporterPackage($package->getSeriesNumberId(), $packageProductType, $weight, $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
 
-        } catch (ProfessionalParcelLogisticWrongDataException $e) {
-            throw new WrongDeliveryDataException($e->getMessage());
         }
-
-        $this->api->persistPackage($professionalParcelLogisticPackage);
-
-        return $this->api->generatePackageIdentifier($professionalParcelLogisticPackage);
+        catch (WrongDataException $e)
+        {
+            throw new WrongDeliveryDataException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
     }
 
     /**
+     * @param array $packages
+     * @throws WrongDataException
+     * @throws WrongDeliveryDataException
      * @return void
      */
-    public function doFlush()
+    public function doSendPackages(array $packages)
     {
-        $this->api->flushPackages();
+        $transporterPackages = [];
+        /** @var Package $package */
+        foreach ($packages AS $package)
+        {
+            $transporterPackages[] = $this->packageBotPackageToTransporterPackage($package);
+        }
+
+        $this->api->createPackages($transporterPackages);
     }
 
     /**
-     * @param $id
-     * @param $decomposition
-     * @return string
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @return \TCPDF
+     * @throws WrongDeliveryDataException
+     */
+    public function doGenerateLabelFull(\TCPDF $pdf, Package $package)
+    {
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return Label::generateLabelFull($pdf, $transporterPackage);
+    }
+
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @param int $position
+     * @return \TCPDF
+     * @throws WrongDeliveryDataException
      * @throws \Exception
      */
-    public function doGenerateLabel($id, $decomposition)
+    public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT)
     {
-        switch ($decomposition)
-        {
-            case LabelAttr::DECOMPOSITION_QUARTER:
-                $decompositionProfessionalParcelLogistic = ProfessionalParcelLogisticApi::LABEL_DECOMPOSITION_QUARTER;
-                break;
-
-            default:
-            case LabelAttr::DECOMPOSITION_FULL:
-                $decompositionProfessionalParcelLogistic = ProfessionalParcelLogisticApi::LABEL_DECOMPOSITION_FULL;
-                break;
-        }
-
-        return $this->api->genetatePackageLabelByPackageId($id, null, ProfessionalParcelLogisticApi::LABEL_FORMAT_RAW, $decompositionProfessionalParcelLogistic);
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return Label::generateLabelQuarter($pdf, $transporterPackage, $position);
     }
 }

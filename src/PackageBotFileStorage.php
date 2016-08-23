@@ -6,6 +6,8 @@
 namespace Salamek\PackageBot;
 
 
+use Salamek\PackageBot\Model\Package;
+
 class PackageBotFileStorage implements IPackageBotStorage
 {
     private $dirStorage;
@@ -103,21 +105,22 @@ class PackageBotFileStorage implements IPackageBotStorage
     /**
      * @param $transporter
      * @param $orderId
-     * @param $packageId
-     * @param $packageData
+     * @param $seriesId
+     * @param $packageNumber
+     * @param Package $packageData
      * @param \DateTimeInterface|null $send
      * @return void
      */
-    public function savePackage($transporter, $orderId, $packageId, $packageData, \DateTimeInterface $send = null)
+    public function savePackage($transporter, $orderId, $seriesId, $packageNumber, Package $packageData, \DateTimeInterface $send = null)
     {
-        $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId, $packageData);
+        $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $seriesId, $packageData);
     }
 
     /**
      * @param $transporter
      * @return array
      */
-    public function getUnSendPackages($transporter)
+    public function getUnSentPackages($transporter)
     {
         return $this->all(self::STORAGE_TABLE_PACKAGE.$transporter);
     }
@@ -126,12 +129,11 @@ class PackageBotFileStorage implements IPackageBotStorage
      * @param $transporter
      * @param null $packageType
      * @param null $sender
-     * @param null $year
      * @return int|null
      */
-    public function getNextPackageId($transporter, $packageType = null, $sender = null, $year = null)
+    public function getNextSeriesNumberId($transporter, $packageType = null, $sender = null)
     {
-        $key = implode('-', [$packageType, $sender, $year]);
+        $key = implode('-', [$packageType, $sender]);
 
         $value = $this->get(self::STORAGE_TABLE_PACKAGE_ID.$transporter, $key);
 
@@ -151,13 +153,16 @@ class PackageBotFileStorage implements IPackageBotStorage
 
     /**
      * @param $transporter
-     * @param $packageId
+     * @param Package[] $packages
      * @param \DateTimeInterface $date
      * @return void
      */
-    public function setSend($transporter, $packageId, \DateTimeInterface $date)
+    public function setSendPackages($transporter, array $packages, \DateTimeInterface $date)
     {
-        $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId, null);
+        foreach($packages AS $package)
+        {
+            $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $package->get, null);
+        }
     }
 
     /**
@@ -174,11 +179,23 @@ class PackageBotFileStorage implements IPackageBotStorage
 
     /**
      * @param $transporter
-     * @param $packageId
+     * @param $packageNumber
+     * @throws \Exception
      * @return null
      */
-    public function getPackageByPackageId($transporter, $packageId)
+    public function getPackageByPackageNumber($transporter, $packageNumber)
     {
-        return $this->get(self::STORAGE_TABLE_PACKAGE.$transporter, $packageId);
+        // TODO: Implement getPackageByPackageNumber() method.
+        throw new \Exception(__CLASS__.' is unable to do that');
+    }
+
+    /**
+     * @param $transporter
+     * @param $seriesNumberId
+     * @return null
+     */
+    public function getPackageBySeriesNumberId($transporter, $seriesNumberId)
+    {
+        return $this->get(self::STORAGE_TABLE_PACKAGE.$transporter, $seriesNumberId);
     }
 }

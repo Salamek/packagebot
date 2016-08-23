@@ -5,7 +5,12 @@ namespace Salamek\PackageBot;
  */
 
 use Salamek\PackageBot\Enum\Attribute\LabelAttr;
+use Salamek\PackageBot\Enum\LabelDecomposition;
+use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\Transporter;
+use Salamek\PackageBot\Enum\TransportService;
+use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Transporters\ITransporter;
 use Nette;
 
@@ -55,31 +60,11 @@ class PackageBot extends Nette\Object
     }
 
     /**
-     *
-     */
-    public function flush()
-    {
-        foreach($this->transporters AS $transporter => $config)
-        {
-            if ($config['enabled'])
-            {
-                $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
-                /** @var ITransporter $iTransporter */
-                $iTransporter = new $className($config, $this->sender, $this->botStorage, $this->cookieJar);
-                $iTransporter->doFlush();
-            }
-        }
-    }
-
-    /**
-     * @param PackageBotPackage $package
-     * @param PackageBotReceiver $receiver
-     * @param PackageBotPaymentInfo $paymentInfo
-     * @param string $transporter
-     * @return string
+     * @param $transporter
+     * @return ITransporter
      * @throws \Exception
      */
-    public function parcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null, $transporter = Transporter::CZECH_POST)
+    private function getTransporter($transporter)
     {
         if (!array_key_exists($transporter, $this->transporters))
         {
@@ -90,7 +75,6 @@ class PackageBot extends Nette\Object
         {
             throw new \Exception(sprintf('Transporter %s is not enabled', $transporter));
         }
-
 
         switch($transporter)
         {
@@ -108,45 +92,135 @@ class PackageBot extends Nette\Object
                 break;
         }
 
-        return $iTransporter->doParcel($package, $receiver, $paymentInfo);
+        return $iTransporter;
     }
 
     /**
-     * @param $packageId
-     * @param string $transporter
-     * @param int $decomposition
+     *
+     */
+    public function flush()
+    {
+        foreach($this->transporters AS $transporter => $config)
+        {
+            if ($config['enabled'])
+            {
+                $iTransporter = $this->getTransporter($transporter);
+                $unsentPackages = $this->botStorage->getUnSentPackages($transporter);
+                $iTransporter->doSendPackages($unsentPackages);
+                $this->botStorage->setSendPackages($transporter, $unsentPackages, new \DateTime());
+            }
+        }
+    }
+
+    /**
+     * @param $transportService
      * @return mixed
      * @throws \Exception
      */
-    public function getPackageLabel($packageId, $transporter = Transporter::CZECH_POST, $decomposition = LabelAttr::DECOMPOSITION_QUARTER)
+    public function transportServiceToTransporter($transportService)
     {
-        if (!array_key_exists($transporter, $this->transporters))
+        $map = [
+            TransportService::CZECH_POST_PACKAGE_TO_HAND => Transporter::CZECH_POST,
+            TransportService::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE => Transporter::CZECH_POST,
+            TransportService::PPL_PARCEL_CZ_PRIVATE => Transporter::PPL
+        ];
+
+        if (!array_key_exists($transportService, $map))
         {
-            throw new \Exception(sprintf('Transporter %s is not configured', $transporter));
+            throw new \Exception(sprintf('Transport service %s is not mapped to any transporter!', $transportService));
         }
 
-        if (!$this->transporters[$transporter]['enabled'])
+        return $map[$transportService];
+    }
+
+    /**
+     * @param Package[] $packages
+     * @return string
+     * @throws \Exception
+     */
+    public function parcel(array $packages)
+    {
+        foreach($packages AS $package)
         {
-            throw new \Exception(sprintf('Transporter %s is not enabled', $transporter));
+            //Get transporter from package
+            $transporter = $this->transportServiceToTransporter($package);
+            //Get transporter class
+            $iTransporter = $this->getTransporter($transporter);
+
+            //Get next unique ID for package from series, this action generates PackageNumber too
+            $seriesNumberId = $this->botStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
+            $package->setSeriesNumberId($seriesNumberId);
+
+            //Test if we can create Transporter package
+            $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
+
+            //If we get here, everything went ok, so we can save package into storage
+            $this->botStorage->savePackage($transporter, $package->getOrderId(), $package->getSeriesNumberId(), $transporterPackage->getPackageNumber(), $package);
+        }
+    }
+
+    /**
+     * @param array $packages
+     * @param int $decomposition
+     * @return string
+     * @throws WrongDeliveryDataException
+     * @throws \Exception
+     */
+    public function getLabels(array $packages, $decomposition = LabelDecomposition::QUARTER)
+    {
+        if (!in_array($decomposition, LabelDecomposition::$list)) {
+            throw new WrongDeliveryDataException(sprintf('unknown $decomposition ony %s are allowed', implode(', ', LabelDecomposition::$list)));
         }
 
-
-        switch($transporter)
+        $packageNumbers = [];
+        foreach($packages AS $package)
         {
-            case Transporter::CZECH_POST:
-            case Transporter::PPL:
-            case Transporter::ULOZENKA:
-                $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
-                /** @var ITransporter $iTransporter */
-                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
-                break;
+            //Get transporter from package
+            $transporter = $this->transportServiceToTransporter($package);
+            //Get transporter class
+            $iTransporter = $this->getTransporter($transporter);
 
-            default:
-                //@TODO Allow custom transporters here
-                throw new \Exception('Unknow transporter');
-                break;
+            //Test if we can create Transporter package
+            $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
+
+            $packageNumbers[] = $transporterPackage->getPackageNumber();
         }
 
-        return $iTransporter->doGenerateLabel($packageId, $decomposition);
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Adam Schubert');
+        $pdf->SetTitle(sprintf('Package bot Label %s', implode(', ', $packageNumbers)));
+        $pdf->SetSubject(sprintf('Package bot Label %s', implode(', ', $packageNumbers)));
+        $pdf->SetKeywords('Package bot');
+        $pdf->SetFont('freeserif');
+        $pdf->setFontSubsetting(true);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        $quarterPosition = LabelPosition::TOP_LEFT;
+        /** @var Package $package */
+        foreach ($packages AS $package) {
+            $transporter = $this->transportServiceToTransporter($package);
+            //Get transporter class
+            $iTransporter = $this->getTransporter($transporter);
+
+            switch ($decomposition) {
+                case LabelDecomposition::FULL:
+                    $pdf->AddPage();
+                    $pdf = $iTransporter->doGenerateLabelFull($pdf, $package);
+                    break;
+                case LabelDecomposition::QUARTER:
+                    if ($quarterPosition > LabelPosition::BOTTOM_RIGHT) {
+                        $quarterPosition = LabelPosition::TOP_LEFT;
+                    }
+                    if ($quarterPosition == LabelPosition::TOP_LEFT) {
+                        $pdf->AddPage();
+                    }
+                    $pdf = $iTransporter->doGenerateLabelQuarter($pdf, $package, $quarterPosition);
+                    $quarterPosition++;
+                    break;
+            }
+        }
+        return $pdf->Output(null, 'S');
     }
 }

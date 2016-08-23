@@ -1,17 +1,21 @@
 <?php
 namespace Salamek\PackageBot\Transporters;
 
-use Salamek\CzechPostApi;
-use Salamek\CzechPostPackage;
-use Salamek\CzechPostPackageWrongDataException;
-use Salamek\CzechPostSender;
-use Salamek\PackageBot\Enum\Attribute\LabelAttr;
+
+use Salamek\CzechPostApi\Api;
+use Salamek\CzechPostApi\Enum\Product;
+use Salamek\CzechPostApi\Exception\WrongDataException;
+use Salamek\CzechPostApi\Label;
+use Salamek\CzechPostApi\Model\Package as TransporterPackage;
+use Salamek\CzechPostApi\Model\PaymentInfo;
+use Salamek\CzechPostApi\Model\Recipient;
+use Salamek\CzechPostApi\Model\Sender;
+use Salamek\CzechPostApi\Model\WeightedPackageInfo;
+use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
+use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\IPackageBotStorage;
-use Salamek\PackageBot\PackageBotPackage;
-use Salamek\PackageBot\PackageBotPaymentInfo;
-use Salamek\PackageBot\PackageBotReceiver;
-use Salamek\PackageBot\WrongDeliveryDataException;
+use Salamek\PackageBot\Model\Package;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -30,8 +34,11 @@ class CzechPost implements ITransporter
     /** @var IPackageBotStorage */
     private $botStorage;
 
-    /** @var CzechPostApi */
+    /** @var Api */
     private $api;
+
+    /** @var Sender */
+    private $czechPostSender;
 
     /**
      * CzechPost constructor.
@@ -42,90 +49,95 @@ class CzechPost implements ITransporter
      */
     public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar)
     {
-        $this->id = $configuration['id'];
+        $this->id = $configuration['senderId'];
         $this->username = $configuration['username'];
         $this->password = $configuration['password'];
         $this->botStorage = $botStorage;
 
-        $czechPostSender = new CzechPostSender($this->id, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'],
+        $this->czechPostSender = new Sender($this->id, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'],
             $configuration['postOfficeZipCode']);
 
-        $this->api = new CzechPostApi($this->username, $this->password, $czechPostSender, new CzechPostStorage($this->botStorage), $cookieJar);
+        $this->api = new Api($this->username, $this->password, $cookieJar);
     }
 
     /**
-     * @param PackageBotPackage $package
-     * @param PackageBotReceiver $receiver
-     * @param PackageBotPaymentInfo $paymentInfo
-     * @return mixed
+     * @param Package $package
+     * @return TransporterPackage
+     * @throws WrongDeliveryDataException
+     */
+    public function packageBotPackageToTransporterPackage(Package $package)
+    {
+        try {
+            $deliveryType = [
+                TransportService::CZECH_POST_PACKAGE_TO_HAND => Product::PACKAGE_TO_HAND,
+                TransportService::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE => Product::PACKAGE_TO_THE_POST_OFFICE
+            ];
+
+
+            $czechPostRecipient = new Recipient($package->getRecipient()->getFirstName(), $package->getRecipient()->getLastName(), $package->getRecipient()->getStreet(),
+                $package->getRecipient()->getStreetNumber(), $package->getRecipient()->getCity(), $package->getRecipient()->getCityPart(), $package->getRecipient()->getZipCode(),
+                $package->getRecipient()->getCompany(), $package->getRecipient()->getCompanyId(), $package->getRecipient()->getCompanyVatId(), $package->getRecipient()->getCountry(),
+                $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getWww());
+
+            if (!is_null($package->getPaymentInfo())) {
+                $czechPostPaymentInfo = new PaymentInfo($package->getPaymentInfo()->getCashOnDeliveryCurrency(), $package->getPaymentInfo()->getCashOnDeliveryCurrency(),
+                    $package->getPaymentInfo()->getBankIdentifier());
+            } else {
+                $czechPostPaymentInfo = null;
+            }
+
+            if (!is_null($package->getWeightedPackageInfo())) {
+                $czechPostWeighedPackageInfo = new WeightedPackageInfo($package->getWeightedPackageInfo()->getWeight(), $package->getWeightedPackageInfo()->getHeight(), $package->getWeightedPackageInfo()->getWidth(), $package->getWeightedPackageInfo()->getLength());
+            } else {
+                $czechPostWeighedPackageInfo = null;
+            }
+
+            return new TransporterPackage($package->getSeriesNumberId(), $deliveryType[$package->getTransportService()], $this->czechPostSender, $czechPostRecipient, $czechPostPaymentInfo, $czechPostWeighedPackageInfo, $package->getGoodsPrice(), [], $package->getDescription(), $package->getPackageCount(), $package->getPackagePosition(), $package->getParentPackageNumber());
+        } catch (WrongDataException $e) {
+            throw new WrongDeliveryDataException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
+    }
+
+    /**
+     * @param array $packages
+     * @throws WrongDataException
+     * @throws WrongDeliveryDataException
+     * @return void
+     */
+    public function doSendPackages(array $packages)
+    {
+        $transporterPackages = [];
+        /** @var Package $package */
+        foreach ($packages AS $package) {
+            $transporterPackages[] = $this->packageBotPackageToTransporterPackage($package);
+        }
+
+        $this->api->createPackages($transporterPackages);
+    }
+
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @return \TCPDF
+     * @throws WrongDeliveryDataException
+     */
+    public function doGenerateLabelFull(\TCPDF $pdf, Package $package)
+    {
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return Label::generateLabelFull($pdf, $transporterPackage);
+    }
+
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @param int $position
+     * @return \TCPDF
      * @throws WrongDeliveryDataException
      * @throws \Exception
      */
-    public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null)
+    public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT)
     {
-        $deliveryType = [
-            TransportService::DELIVER => CzechPostPackage::DELIVERY_TYPE_DELIVER,
-            TransportService::STORE => CzechPostPackage::DELIVERY_TYPE_STORE
-        ];
-
-        if (!is_null($paymentInfo))
-        {
-            $cashOnDeliveryPrice = $paymentInfo->getCashOnDeliveryPrice();
-            $bankIdentifier = $paymentInfo->getBankIdentifier();
-        }
-        else
-        {
-            $cashOnDeliveryPrice = 0;
-            $bankIdentifier = '';
-        }
-
-        try {
-            $czechPostPackage = new CzechPostPackage($receiver->getCompany(), $receiver->getFirstName(), $receiver->getLastName(), $receiver->getEmail(), $receiver->getPhone(), $receiver->getWww(),
-                $receiver->getStreet(), $receiver->getStreetNumber(), $receiver->getZipCode(), $receiver->getCity(), $receiver->getCityPart(),
-                $receiver->getState(), $cashOnDeliveryPrice, $package->getGoodsPrice(), [], $bankIdentifier, $package->getWeight(), $deliveryType[$package->getType()],
-                $package->getDescription());
-
-            $czechPostPackage->setWidth($package->getWidth());
-            $czechPostPackage->setHeight($package->getHeight());
-            $czechPostPackage->setLength($package->getLength());
-            $czechPostPackage->setOrderId($package->getOrderId());
-        } catch (CzechPostPackageWrongDataException $e) {
-            throw new WrongDeliveryDataException($e->getMessage());
-        }
-
-        $this->api->persistPackage($czechPostPackage);
-
-        return $this->api->generatePackageIdentifier($czechPostPackage);
-    }
-
-    /**
-     * @return void
-     */
-    public function doFlush()
-    {
-        $this->api->flushPackages();
-    }
-
-    /**
-     * @param $id
-     * @param $decomposition
-     * @return string
-     * @throws \Exception
-     */
-    public function doGenerateLabel($id, $decomposition)
-    {
-        switch ($decomposition)
-        {
-            case LabelAttr::DECOMPOSITION_QUARTER:
-                $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_QUARTER;
-                break;
-
-            default:
-            case LabelAttr::DECOMPOSITION_FULL:
-                $decompositionCzechPost = CzechPostApi::LABEL_DECOMPOSITION_FULL;
-                break;
-        }
-
-        return $this->api->genetatePackageLabelByPackageId($id, null, CzechPostApi::LABEL_FORMAT_RAW, $decompositionCzechPost);
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return Label::generateLabelQuarter($pdf, $transporterPackage, $position);
     }
 }

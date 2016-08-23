@@ -17,15 +17,13 @@
     {
       "type": "vcs",
       "url": "git@gitlab.salamek.cz:sadam/czech-post-api.git"
-    },
-    {
-      "type": "vcs",
-      "url": "git@gitlab.salamek.cz:sadam/professional-parcel-logistic-api.git"
     }
   ],
   "require": {
+    "php": ">=5.3.0",
+    "tecnickcom/tcpdf": "^6.2",
     "salamek/czech-post-api": "dev-master",
-    "salamek/professional-parcel-logistic-api": "dev-master"
+    "salamek/ppl-my-api": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "5.3"

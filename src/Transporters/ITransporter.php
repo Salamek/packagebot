@@ -1,11 +1,9 @@
 <?php
 namespace Salamek\PackageBot\Transporters;
 
+use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\IPackageBotStorage;
-use Salamek\PackageBot\PackageBotPackage;
-use Salamek\PackageBot\PackageBotParcelInfo;
-use Salamek\PackageBot\PackageBotPaymentInfo;
-use Salamek\PackageBot\PackageBotReceiver;
+use Salamek\PackageBot\Model\Package;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -22,22 +20,29 @@ interface ITransporter
     public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar);
 
     /**
-     * @param PackageBotPackage $package
-     * @param PackageBotReceiver $receiver
-     * @param PackageBotPaymentInfo|null $paymentInfo
-     * @return int
-     */
-    public function doParcel(PackageBotPackage $package, PackageBotReceiver $receiver, PackageBotPaymentInfo $paymentInfo = null);
-
-    /**
+     * @param Package $package
      * @return mixed
      */
-    public function doFlush();
+    public function packageBotPackageToTransporterPackage(Package $package);
 
     /**
-     * @param $id
-     * @param $decomposition
+     * @param Package[] $packages
      * @return mixed
      */
-    public function doGenerateLabel($id, $decomposition);
+    public function doSendPackages(array $packages);
+
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @return /TCPDF
+     */
+    public function doGenerateLabelFull(\TCPDF $pdf, Package $package);
+
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @param int $position
+     * @return /TCPDF
+     */
+    public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT);
 }
