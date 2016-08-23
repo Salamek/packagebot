@@ -27,7 +27,11 @@ class PackageBot extends Nette\Object
     /** @var string */
     private $cookieJar;
 
-    private $botStorage;
+    /** @var IPackageStorage */
+    private $packageStorage;
+
+    /** @var ISeriesNumberStorage */
+    private $seriesNumberStorage;
 
     /** @var Nette\Caching\Cache */
     private $cache;
@@ -37,10 +41,11 @@ class PackageBot extends Nette\Object
      * @param Nette\Caching\IStorage $cacheStorage
      * @param array $transporters
      * @param array $sender
-     * @param IPackageBotStorage $botStorage
+     * @param IPackageStorage $packageStorage
+     * @param ISeriesNumberStorage $seriesNumberStorage
      * @param string $tempDir
      */
-    public function __construct(Nette\Caching\IStorage $cacheStorage, array $transporters, array $sender, IPackageBotStorage $botStorage, $tempDir = null)
+    public function __construct(Nette\Caching\IStorage $cacheStorage, array $transporters, array $sender, IPackageStorage $packageStorage, ISeriesNumberStorage $seriesNumberStorage, $tempDir = null)
     {
         $this->cache = new Nette\Caching\Cache($cacheStorage, self::$namespace);
         $this->transporters = $transporters;
@@ -56,7 +61,8 @@ class PackageBot extends Nette\Object
         }
 
         $this->cookieJar = $cookieJar;
-        $this->botStorage = $botStorage;
+        $this->packageStorage = $packageStorage;
+        $this->seriesNumberStorage = $seriesNumberStorage;
     }
 
     /**
@@ -83,7 +89,7 @@ class PackageBot extends Nette\Object
             case Transporter::ULOZENKA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
-                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->botStorage, $this->cookieJar);
+                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->packageStorage, $this->cookieJar);
                 break;
 
             default:
@@ -105,9 +111,9 @@ class PackageBot extends Nette\Object
             if ($config['enabled'])
             {
                 $iTransporter = $this->getTransporter($transporter);
-                $unsentPackages = $this->botStorage->getUnSentPackages($transporter);
+                $unsentPackages = $this->packageStorage->getUnSentPackages($transporter);
                 $iTransporter->doSendPackages($unsentPackages);
-                $this->botStorage->setSendPackages($transporter, $unsentPackages, new \DateTime());
+                $this->packageStorage->setSendPackages($transporter, $unsentPackages, new \DateTime());
             }
         }
     }
@@ -148,25 +154,26 @@ class PackageBot extends Nette\Object
             $iTransporter = $this->getTransporter($transporter);
 
             //Get next unique ID for package from series, this action generates PackageNumber too
-            $seriesNumberId = $this->botStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
+            $seriesNumberId = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
             $package->setSeriesNumberId($seriesNumberId);
 
             //Test if we can create Transporter package
             $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
 
             //If we get here, everything went ok, so we can save package into storage
-            $this->botStorage->savePackage($transporter, $package->getOrderId(), $package->getSeriesNumberId(), $transporterPackage->getPackageNumber(), $package);
+            $this->packageStorage->savePackage($transporter, $package->getOrderId(), $package->getSeriesNumberId(), $transporterPackage->getPackageNumber(), $package);
         }
     }
 
     /**
      * @param array $packages
      * @param int $decomposition
+     * @param null|string $savePath
      * @return string
      * @throws WrongDeliveryDataException
      * @throws \Exception
      */
-    public function getLabels(array $packages, $decomposition = LabelDecomposition::QUARTER)
+    public function getLabels(array $packages, $decomposition = LabelDecomposition::QUARTER, $savePath = null)
     {
         if (!in_array($decomposition, LabelDecomposition::$list)) {
             throw new WrongDeliveryDataException(sprintf('unknown $decomposition ony %s are allowed', implode(', ', LabelDecomposition::$list)));
@@ -221,6 +228,17 @@ class PackageBot extends Nette\Object
                     break;
             }
         }
-        return $pdf->Output(null, 'S');
+
+
+        if (is_null($savePath))
+        {
+            return $pdf->Output(null, 'S');
+        }
+        else
+        {
+            $fullPath = $savePath.'/'.implode('-', $packageNumbers).'.pdf';
+            $pdf->Output($fullPath, 'F');
+            return $fullPath;
+        }
     }
 }

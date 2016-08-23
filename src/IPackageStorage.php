@@ -5,14 +5,13 @@
 
 namespace Salamek\PackageBot;
 
-use Salamek\PackageBot\Exception\NumberSeriesWastedException;
 use Salamek\PackageBot\Model\Package;
 
 /**
  * Interface IPackageBotStorage
  * @package Salamek\PackageBot
  */
-interface IPackageBotStorage
+interface IPackageStorage
 {
     /**
      * @param $transporter
@@ -51,15 +50,6 @@ interface IPackageBotStorage
      * @return mixed
      */
     public function getPackageByPackageNumber($transporter, $packageNumber);
-
-    /**
-     * @param string $transporter
-     * @param null|integer $transportService
-     * @param null|string $sender
-     * @throws NumberSeriesWastedException
-     * @return mixed
-     */
-    public function getNextSeriesNumberId($transporter, $transportService = null, $sender = null);
 
     /**
      * @param $transporter
