@@ -33,10 +33,7 @@ class ProfessionalParcelLogistic implements ITransporter
 
     /** @var mixed */
     private $depoCode;
-
-    /** @var IPackageBotStorage  */
-    private $botStorage;
-
+    
     /** @var Api */
     private $api;
 
@@ -47,17 +44,15 @@ class ProfessionalParcelLogistic implements ITransporter
      * Ppl constructor.
      * @param array $configuration
      * @param array $sender
-     * @param IPackageBotStorage $botStorage
      * @param $cookieJar
      */
-    public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar)
+    public function __construct(array $configuration, array $sender, $cookieJar)
     {
         $this->customerId = $configuration['senderId'];
         $this->username = $configuration['username'];
         $this->password = $configuration['password'];
         $this->depoCode = $configuration['depoCode'];
-        $this->botStorage = $botStorage;
-        
+
         $this->professionalParcelLogisticSender = new Sender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
 
         $this->api = new Api($this->username, $this->password, $this->customerId);
@@ -76,12 +71,11 @@ class ProfessionalParcelLogistic implements ITransporter
             {
                 default:
                 case TransportService::PPL_PARCEL_CZ_PRIVATE:
-                    if (!is_null($package->getPaymentInfo())) {
-                        $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE_COD;
-                    }else
-                    {
-                        $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE;
-                    }
+                    $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE;
+                    break;
+                
+                case TransportService::PPL_PARCEL_CZ_PRIVATE_COD:
+                    $packageProductType = Product::PPL_PARCEL_CZ_PRIVATE_COD;
                     break;
             }
 
@@ -104,8 +98,7 @@ class ProfessionalParcelLogistic implements ITransporter
                 $weight = null;
             }
 
-            return new TransporterPackage($package->getSeriesNumberId(), $packageProductType, $weight, $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
-
+            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $packageProductType, $weight, $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
         }
         catch (WrongDataException $e)
         {

@@ -6,6 +6,7 @@
 namespace Salamek\PackageBot;
 
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SeriesNumberInfo;
 
 /**
  * Interface IPackageBotStorage
@@ -15,14 +16,12 @@ interface IPackageStorage
 {
     /**
      * @param $transporter
-     * @param integer $orderId
-     * @param integer $seriesNumberId
      * @param string $packageNumber
      * @param Package $packageData
      * @param \DateTimeInterface|null $send
      * @return mixed
      */
-    public function savePackage($transporter, $orderId, $seriesNumberId, $packageNumber, Package $packageData, \DateTimeInterface $send = null);
+    public function savePackage($transporter, $packageNumber, Package $packageData, \DateTimeInterface $send = null);
 
     /**
      * @param string $transporter
@@ -33,16 +32,16 @@ interface IPackageStorage
     /**
      * @param string $transporter
      * @param integer $orderId
-     * @return mixed
+     * @return array
      */
-    public function getPackageByOrderId($transporter, $orderId);
+    public function getPackagesByOrderId($transporter, $orderId);
 
     /**
      * @param string $transporter
-     * @param integer $seriesNumberId
+     * @param SeriesNumberInfo $seriesNumberInfo
      * @return mixed
      */
-    public function getPackageBySeriesNumberId($transporter, $seriesNumberId);
+    public function getPackageBySeriesNumberInfo($transporter, SeriesNumberInfo $seriesNumberInfo);
 
     /**
      * @param string $transporter

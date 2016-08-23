@@ -6,6 +6,9 @@
 namespace Salamek\PackageBot\Model;
 
 
+use Salamek\PackageBot\Enum\Currency;
+use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+
 class PaymentInfo
 {
     /** @var int */
@@ -44,9 +47,9 @@ class PaymentInfo
      */
     public function setCashOnDeliveryCurrency($cashOnDeliveryCurrency)
     {
-        if (!in_array($cashOnDeliveryCurrency, PackageBotDial::$supportedCurrencyCodes))
+        if (!in_array($cashOnDeliveryCurrency, Currency::$list))
         {
-            throw new WrongDeliveryDataException('Unsupported currency code, supported codes are '.implode(' ,', PackageBotDial::$supportedCurrencyCodes));
+            throw new WrongDeliveryDataException('Unsupported currency code, supported codes are '.implode(', ', Currency::$list));
         }
         
         $this->cashOnDeliveryCurrency = $cashOnDeliveryCurrency;

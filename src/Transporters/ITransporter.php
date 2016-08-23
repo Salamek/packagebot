@@ -14,10 +14,9 @@ interface ITransporter
      * ITransporter constructor.
      * @param array $configuration
      * @param array $sender
-     * @param IPackageBotStorage $botStorage
      * @param $cookieJar
      */
-    public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar);
+    public function __construct(array $configuration, array $sender, $cookieJar);
 
     /**
      * @param Package $package

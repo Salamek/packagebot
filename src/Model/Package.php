@@ -9,8 +9,8 @@ use Salamek\PackageBot\Enum\TransportService;
 
 class Package
 {
-    /** @var integer */
-    private $seriesNumberId;
+    /** @var SeriesNumberInfo */
+    private $seriesNumberInfo;
 
     /** @var int */
     private $orderId;
@@ -42,8 +42,8 @@ class Package
     /** @var integer */
     private $packagePosition;
 
-    /** @var null|string */
-    private $parentPackageNumber = null;
+    /** @var null|SeriesNumberInfo */
+    private $parentSeriesNumberInfo = null;
 
     /**
      * PackageBotPackage constructor.
@@ -56,19 +56,19 @@ class Package
      * @param null|WeightedPackageInfo $weightedPackageInfo
      * @param integer $packageCount
      * @param integer $packagePosition
-     * @param null|string $parentPackageNumber
+     * @param null|SeriesNumberInfo $parentSeriesNumberInfo
      */
     public function __construct(
         $orderId,
         $goodsPrice = 0,
-        $type = TransportService::DELIVER,
+        $type = TransportService::CZECH_POST_PACKAGE_TO_HAND,
         $description = '',
         Recipient $recipient,
         PaymentInfo $paymentInfo = null,
         WeightedPackageInfo $weightedPackageInfo = null,
         $packageCount = 1,
         $packagePosition = 1,
-        $parentPackageNumber = null
+        $parentSeriesNumberInfo = null
     ) {
         $this->setOrderId($orderId);
         $this->setGoodsPrice($goodsPrice);
@@ -77,6 +77,9 @@ class Package
         $this->setRecipient($recipient);
         $this->setPaymentInfo($paymentInfo);
         $this->setWeightedPackageInfo($weightedPackageInfo);
+        $this->setPackageCount($packageCount);
+        $this->setPackagePosition($packagePosition);
+        $this->setParentSeriesNumberInfo($parentSeriesNumberInfo);
     }
 
     /**
@@ -97,11 +100,11 @@ class Package
     }
 
     /**
-     * @param integer $seriesNumberId
+     * @param SeriesNumberInfo $seriesNumberInfo
      */
-    public function setSeriesNumberId($seriesNumberId)
+    public function setSeriesNumberInfo($seriesNumberInfo)
     {
-        $this->seriesNumberId = $seriesNumberId;
+        $this->seriesNumberInfo = $seriesNumberInfo;
     }
 
     /**
@@ -169,19 +172,19 @@ class Package
     }
 
     /**
-     * @param null|string $parentPackageNumber
+     * @param null|SeriesNumberInfo $parentSeriesNumberInfo
      */
-    public function setParentPackageNumber($parentPackageNumber)
+    public function setParentSeriesNumberInfo($parentSeriesNumberInfo)
     {
-        $this->parentPackageNumber = $parentPackageNumber;
+        $this->parentSeriesNumberInfo = $parentSeriesNumberInfo;
     }
 
     /**
-     * @return int
+     * @return SeriesNumberInfo
      */
-    public function getSeriesNumberId()
+    public function getSeriesNumberInfo()
     {
-        return $this->seriesNumberId;
+        return $this->seriesNumberInfo;
     }
 
     /**
@@ -265,10 +268,10 @@ class Package
     }
 
     /**
-     * @return null|string
+     * @return null|SeriesNumberInfo
      */
-    public function getParentPackageNumber()
+    public function getParentSeriesNumberInfo()
     {
-        return $this->parentPackageNumber;
+        return $this->parentSeriesNumberInfo;
     }
 }

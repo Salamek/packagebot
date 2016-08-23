@@ -7,6 +7,7 @@ namespace Salamek\PackageBot\Storage;
 
 
 use Salamek\PackageBot\ISeriesNumberStorage;
+use Salamek\PackageBot\Model\SeriesNumberInfo;
 
 class PackageBotSeriesNumberStorage extends FileStorage implements ISeriesNumberStorage
 {
@@ -14,7 +15,7 @@ class PackageBotSeriesNumberStorage extends FileStorage implements ISeriesNumber
      * @param $transporter
      * @param null $packageType
      * @param null $sender
-     * @return int|null
+     * @return SeriesNumberInfo
      */
     public function getNextSeriesNumberId($transporter, $packageType = null, $sender = null)
     {
@@ -33,6 +34,6 @@ class PackageBotSeriesNumberStorage extends FileStorage implements ISeriesNumber
 
         $this->set(self::STORAGE_TABLE_PACKAGE_ID.$transporter, $key, $value);
 
-        return $value;
+        return new SeriesNumberInfo(0, $value);
     }
 }

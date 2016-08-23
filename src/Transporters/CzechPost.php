@@ -14,7 +14,6 @@ use Salamek\CzechPostApi\Model\WeightedPackageInfo;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
-use Salamek\PackageBot\IPackageBotStorage;
 use Salamek\PackageBot\Model\Package;
 
 /**
@@ -30,10 +29,7 @@ class CzechPost implements ITransporter
 
     /** @var mixed */
     private $password;
-
-    /** @var IPackageBotStorage */
-    private $botStorage;
-
+    
     /** @var Api */
     private $api;
 
@@ -44,18 +40,15 @@ class CzechPost implements ITransporter
      * CzechPost constructor.
      * @param array $configuration
      * @param array $sender
-     * @param IPackageBotStorage $botStorage
      * @param $cookieJar
      */
-    public function __construct(array $configuration, array $sender, IPackageBotStorage $botStorage, $cookieJar)
+    public function __construct(array $configuration, array $sender, $cookieJar)
     {
         $this->id = $configuration['senderId'];
         $this->username = $configuration['username'];
         $this->password = $configuration['password'];
-        $this->botStorage = $botStorage;
 
-        $this->czechPostSender = new Sender($this->id, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'],
-            $configuration['postOfficeZipCode']);
+        $this->czechPostSender = new Sender($this->id, null, null, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'], $sender['country'], $configuration['postOfficeZipCode']);
 
         $this->api = new Api($this->username, $this->password, $cookieJar);
     }
@@ -72,7 +65,6 @@ class CzechPost implements ITransporter
                 TransportService::CZECH_POST_PACKAGE_TO_HAND => Product::PACKAGE_TO_HAND,
                 TransportService::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE => Product::PACKAGE_TO_THE_POST_OFFICE
             ];
-
 
             $czechPostRecipient = new Recipient($package->getRecipient()->getFirstName(), $package->getRecipient()->getLastName(), $package->getRecipient()->getStreet(),
                 $package->getRecipient()->getStreetNumber(), $package->getRecipient()->getCity(), $package->getRecipient()->getCityPart(), $package->getRecipient()->getZipCode(),
@@ -92,7 +84,7 @@ class CzechPost implements ITransporter
                 $czechPostWeighedPackageInfo = null;
             }
 
-            return new TransporterPackage($package->getSeriesNumberId(), $deliveryType[$package->getTransportService()], $this->czechPostSender, $czechPostRecipient, $czechPostPaymentInfo, $czechPostWeighedPackageInfo, $package->getGoodsPrice(), [], $package->getDescription(), $package->getPackageCount(), $package->getPackagePosition(), $package->getParentPackageNumber());
+            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $deliveryType[$package->getTransportService()], $this->czechPostSender, $czechPostRecipient, $czechPostPaymentInfo, $czechPostWeighedPackageInfo, $package->getGoodsPrice(), [], $package->getDescription(), $package->getPackageCount(), $package->getPackagePosition(), $package->getParentSeriesNumberInfo()->getSeriesNumber());
         } catch (WrongDataException $e) {
             throw new WrongDeliveryDataException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }

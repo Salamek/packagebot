@@ -5,6 +5,9 @@
 
 namespace Salamek\PackageBot\Model;
 
+use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PplMyApi\Enum\Country;
+
 class Recipient
 {
     /** @var integer */
@@ -65,7 +68,7 @@ class Recipient
      * @param $zipCode
      * @param $city
      * @param $cityPart
-     * @param $state
+     * @param $country
      */
     public function __construct(
         $company,
@@ -79,7 +82,7 @@ class Recipient
         $zipCode,
         $city,
         $cityPart,
-        $state
+        $country
     ) {
         $this->setFirstName($firstName);
         $this->setLastName($lastName);
@@ -92,7 +95,7 @@ class Recipient
         $this->setZipCode($zipCode);
         $this->setCity($city);
         $this->setCityPart($cityPart);
-        $this->setCountry($state);
+        $this->setCountry($country);
     }
 
     /**
@@ -173,9 +176,9 @@ class Recipient
      */
     public function setCountry($country)
     {
-        if (!in_array($country, PackageBotDial::$supportedCountryCodes))
+        if (!in_array($country, Country::$list))
         {
-            throw new WrongDeliveryDataException('Unsupported country code, supported codes are '.implode(' ,', PackageBotDial::$supportedCountryCodes));
+            throw new WrongDeliveryDataException(sprintf('Unsupported country code %s, supported codes are %s', $country, implode(', ', Country::$list)));
         }
 
         $this->country = $country;

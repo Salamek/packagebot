@@ -89,7 +89,7 @@ class PackageBot extends Nette\Object
             case Transporter::ULOZENKA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
-                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->packageStorage, $this->cookieJar);
+                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->cookieJar);
                 break;
 
             default:
@@ -149,19 +149,19 @@ class PackageBot extends Nette\Object
         foreach($packages AS $package)
         {
             //Get transporter from package
-            $transporter = $this->transportServiceToTransporter($package);
+            $transporter = $this->transportServiceToTransporter($package->getTransportService());
             //Get transporter class
             $iTransporter = $this->getTransporter($transporter);
 
             //Get next unique ID for package from series, this action generates PackageNumber too
-            $seriesNumberId = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
-            $package->setSeriesNumberId($seriesNumberId);
+            $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
+            $package->setSeriesNumberInfo($seriesNumberInfo);
 
             //Test if we can create Transporter package
             $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
 
             //If we get here, everything went ok, so we can save package into storage
-            $this->packageStorage->savePackage($transporter, $package->getOrderId(), $package->getSeriesNumberId(), $transporterPackage->getPackageNumber(), $package);
+            $this->packageStorage->savePackage($transporter, $transporterPackage->getPackageNumber(), $package);
         }
     }
 
@@ -180,10 +180,11 @@ class PackageBot extends Nette\Object
         }
 
         $packageNumbers = [];
+        /** @var Package $package */
         foreach($packages AS $package)
         {
             //Get transporter from package
-            $transporter = $this->transportServiceToTransporter($package);
+            $transporter = $this->transportServiceToTransporter($package->getTransportService());
             //Get transporter class
             $iTransporter = $this->getTransporter($transporter);
 
@@ -207,7 +208,7 @@ class PackageBot extends Nette\Object
         $quarterPosition = LabelPosition::TOP_LEFT;
         /** @var Package $package */
         foreach ($packages AS $package) {
-            $transporter = $this->transportServiceToTransporter($package);
+            $transporter = $this->transportServiceToTransporter($package->getTransportService());
             //Get transporter class
             $iTransporter = $this->getTransporter($transporter);
 

@@ -8,21 +8,20 @@ namespace Salamek\PackageBot\Storage;
 
 use Salamek\PackageBot\IPackageStorage;
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SeriesNumberInfo;
 
 class PackageBotPackageStorage extends FileStorage implements IPackageStorage
 {
     /**
      * @param $transporter
-     * @param $orderId
-     * @param $seriesId
      * @param $packageNumber
      * @param Package $packageData
      * @param \DateTimeInterface|null $send
      * @return void
      */
-    public function savePackage($transporter, $orderId, $seriesId, $packageNumber, Package $packageData, \DateTimeInterface $send = null)
+    public function savePackage($transporter, $packageNumber, Package $packageData, \DateTimeInterface $send = null)
     {
-        $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $seriesId, $packageData);
+        $this->set(self::STORAGE_TABLE_PACKAGE.$transporter, $packageData->getSeriesNumberInfo()->getSeriesId().$packageData->getSeriesNumberInfo()->getSeriesNumber(), $packageData);
     }
 
     /**
@@ -54,7 +53,7 @@ class PackageBotPackageStorage extends FileStorage implements IPackageStorage
      * @throws \Exception
      * @return void
      */
-    public function getPackageByOrderId($transporter, $orderId)
+    public function getPackagesByOrderId($transporter, $orderId)
     {
         // TODO: Implement getPackageByOrderId() method.
         throw new \Exception(__CLASS__.' is unable to do that');
@@ -74,11 +73,11 @@ class PackageBotPackageStorage extends FileStorage implements IPackageStorage
 
     /**
      * @param $transporter
-     * @param $seriesNumberId
+     * @param SeriesNumberInfo $seriesNumberInfo
      * @return null
      */
-    public function getPackageBySeriesNumberId($transporter, $seriesNumberId)
+    public function getPackageBySeriesNumberInfo($transporter, SeriesNumberInfo $seriesNumberInfo)
     {
-        return $this->get(self::STORAGE_TABLE_PACKAGE.$transporter, $seriesNumberId);
+        return $this->get(self::STORAGE_TABLE_PACKAGE.$transporter, $seriesNumberInfo->getSeriesId().$seriesNumberInfo->getSeriesNumber());
     }
 }
