@@ -44,11 +44,12 @@ class CzechPost implements ITransporter
      */
     public function __construct(array $configuration, array $sender, $cookieJar)
     {
-        $this->id = $configuration['senderId'];
+
+        $this->id = substr($configuration['senderId'], 1);
         $this->username = $configuration['username'];
         $this->password = $configuration['password'];
 
-        $this->czechPostSender = new Sender($this->id, null, null, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'], $sender['country'], $configuration['postOfficeZipCode']);
+        $this->czechPostSender = new Sender($this->id, null, null, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'], $sender['country'], $configuration['postOfficeZipCode'], substr($configuration['senderId'], 0, 1));
 
         $this->api = new Api($this->username, $this->password, $cookieJar);
     }
@@ -72,7 +73,7 @@ class CzechPost implements ITransporter
                 $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getWww());
 
             if (!is_null($package->getPaymentInfo())) {
-                $czechPostPaymentInfo = new PaymentInfo($package->getPaymentInfo()->getCashOnDeliveryCurrency(), $package->getPaymentInfo()->getCashOnDeliveryCurrency(),
+                $czechPostPaymentInfo = new PaymentInfo($package->getPaymentInfo()->getCashOnDeliveryPrice(), $package->getPaymentInfo()->getCashOnDeliveryCurrency(),
                     $package->getPaymentInfo()->getBankIdentifier());
             } else {
                 $czechPostPaymentInfo = null;
@@ -84,7 +85,7 @@ class CzechPost implements ITransporter
                 $czechPostWeighedPackageInfo = null;
             }
 
-            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $deliveryType[$package->getTransportService()], $this->czechPostSender, $czechPostRecipient, $czechPostPaymentInfo, $czechPostWeighedPackageInfo, $package->getGoodsPrice(), [], $package->getDescription(), $package->getPackageCount(), $package->getPackagePosition(), $package->getParentSeriesNumberInfo()->getSeriesNumber());
+            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $deliveryType[$package->getTransportService()], $this->czechPostSender, $czechPostRecipient, $czechPostPaymentInfo, $czechPostWeighedPackageInfo, $package->getGoodsPrice(), [], $package->getDescription(), $package->getPackageCount(), $package->getPackagePosition(), ($package->getParentSeriesNumberInfo() ? $package->getParentSeriesNumberInfo()->getSeriesNumber() : null));
         } catch (WrongDataException $e) {
             throw new WrongDeliveryDataException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }

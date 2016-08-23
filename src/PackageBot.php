@@ -150,11 +150,14 @@ class PackageBot extends Nette\Object
         {
             //Get transporter from package
             $transporter = $this->transportServiceToTransporter($package->getTransportService());
+
+            $transporterConfig = $this->transporters[$transporter];
+
             //Get transporter class
             $iTransporter = $this->getTransporter($transporter);
 
             //Get next unique ID for package from series, this action generates PackageNumber too
-            $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $this->sender['senderId']);
+            $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $transporterConfig['senderId']);
             $package->setSeriesNumberInfo($seriesNumberInfo);
 
             //Test if we can create Transporter package
