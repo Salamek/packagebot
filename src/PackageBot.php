@@ -179,7 +179,7 @@ class PackageBot extends Nette\Object
     public function getLabels(array $packages, $decomposition = LabelDecomposition::QUARTER, $savePath = null)
     {
         if (!in_array($decomposition, LabelDecomposition::$list)) {
-            throw new WrongDeliveryDataException(sprintf('unknown $decomposition ony %s are allowed', implode(', ', LabelDecomposition::$list)));
+            throw new WrongDeliveryDataException(sprintf('unknown $decomposition only %s are allowed', implode(', ', LabelDecomposition::$list)));
         }
 
         $packageNumbers = [];
