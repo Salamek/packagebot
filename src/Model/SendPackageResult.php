@@ -9,7 +9,7 @@ namespace Salamek\PackageBot\Model;
 class SendPackageResult
 {
     /** @var bool */
-    private $status = false;
+    private $success = false;
 
     /** @var null|integer */
     private $statusCode = null;
@@ -29,18 +29,18 @@ class SendPackageResult
      */
     public function __construct($status, $statusCode, $statusMessage, SeriesNumberInfo $seriesNumberInfo)
     {
-        $this->status = $status;
+        $this->success = $status;
         $this->statusCode = $statusCode;
         $this->statusMessage = $statusMessage;
         $this->seriesNumberInfo = $seriesNumberInfo;
     }
 
     /**
-     * @param boolean $status
+     * @param boolean $success
      */
-    public function setStatus($status)
+    public function setSuccess($success)
     {
-        $this->status = $status;
+        $this->success = $success;
     }
 
     /**
@@ -70,9 +70,9 @@ class SendPackageResult
     /**
      * @return boolean
      */
-    public function isStatus()
+    public function isSuccess()
     {
-        return $this->status;
+        return $this->success;
     }
 
     /**
