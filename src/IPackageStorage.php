@@ -6,6 +6,7 @@
 namespace Salamek\PackageBot;
 
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SendPackageResult;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
 
 /**
@@ -52,9 +53,9 @@ interface IPackageStorage
 
     /**
      * @param $transporter
-     * @param Package[] $packages
+     * @param SendPackageResult[] $sendPackagesResults
      * @param \DateTimeInterface $date
      * @return mixed
      */
-    public function setSendPackages($transporter, array $packages, \DateTimeInterface $date);
+    public function setSendPackages($transporter, array $sendPackagesResults, \DateTimeInterface $date);
 }

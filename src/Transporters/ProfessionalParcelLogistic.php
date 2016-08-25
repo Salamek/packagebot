@@ -4,6 +4,8 @@ namespace Salamek\PackageBot\Transporters;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PackageBot\Model\SendPackageResult;
+use Salamek\PackageBot\Model\SeriesNumberInfo;
 use Salamek\PplMyApi\Api;
 use Salamek\PplMyApi\Enum\Product;
 use Salamek\PplMyApi\Exception\WrongDataException;
@@ -110,18 +112,36 @@ class ProfessionalParcelLogistic implements ITransporter
      * @param array $packages
      * @throws WrongDataException
      * @throws WrongDeliveryDataException
-     * @return void
+     * @throws \Exception
+     * @return SendPackageResult[]
      */
     public function doSendPackages(array $packages)
     {
         $transporterPackages = [];
+        $packagesByPackageNumber = [];
         /** @var Package $package */
         foreach ($packages AS $package)
         {
-            $transporterPackages[] = $this->packageBotPackageToTransporterPackage($package);
+            $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+            $transporterPackages[] = $transporterPackage;
+            $packagesByPackageNumber[$transporterPackage->getPackageNumber()] = $package;
         }
 
-        $this->api->createPackages($transporterPackages);
+        $return = [];
+        $results = $this->api->createPackages($transporterPackages);
+        foreach($results AS $result)
+        {
+            if (!array_key_exists($result['ItemKey'], $packagesByPackageNumber))
+            {
+                throw new \Exception('Returned PackageNumber is not in send PackageNumbers');
+            }
+
+            /** @var Package $foundSendPackage */
+            $foundSendPackage = $packagesByPackageNumber[$result['ItemKey']];
+            $return[] = new SendPackageResult(($result['Code'] == 0 ? true : false), $result['Code'], $result['Message'], $foundSendPackage->getSeriesNumberInfo());
+        }
+
+        return $return;
     }
 
     /**

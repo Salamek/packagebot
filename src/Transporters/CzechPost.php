@@ -15,6 +15,7 @@ use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SendPackageResult;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -95,17 +96,22 @@ class CzechPost implements ITransporter
      * @param array $packages
      * @throws WrongDataException
      * @throws WrongDeliveryDataException
-     * @return void
+     * @return SendPackageResult[]
      */
     public function doSendPackages(array $packages)
     {
+        $return = [];
         $transporterPackages = [];
         /** @var Package $package */
         foreach ($packages AS $package) {
             $transporterPackages[] = $this->packageBotPackageToTransporterPackage($package);
+            //We gonna generate that right now, cos there is no way we can check status of CzechPost.createPackages... lets just assume everything went ok
+            $return[] = new SendPackageResult(true, 0, 'OK', $package->getSeriesNumberInfo());
         }
 
         $this->api->createPackages($transporterPackages);
+
+        return $return;
     }
 
     /**

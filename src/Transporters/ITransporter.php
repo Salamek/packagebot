@@ -4,6 +4,7 @@ namespace Salamek\PackageBot\Transporters;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\IPackageBotStorage;
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SendPackageResult;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -26,7 +27,7 @@ interface ITransporter
 
     /**
      * @param Package[] $packages
-     * @return mixed
+     * @return SendPackageResult[]
      */
     public function doSendPackages(array $packages);
 

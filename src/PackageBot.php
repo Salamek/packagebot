@@ -11,6 +11,7 @@ use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\Package;
+use Salamek\PackageBot\Model\SendPackageResult;
 use Salamek\PackageBot\Transporters\ITransporter;
 use Nette;
 
@@ -112,8 +113,10 @@ class PackageBot extends Nette\Object
             {
                 $iTransporter = $this->getTransporter($transporter);
                 $unsentPackages = $this->packageStorage->getUnSentPackages($transporter);
-                $iTransporter->doSendPackages($unsentPackages);
-                $this->packageStorage->setSendPackages($transporter, $unsentPackages, new \DateTime());
+
+                /** @var SendPackageResult[] $sendPackagesResults */
+                $sendPackagesResults = $iTransporter->doSendPackages($unsentPackages);
+                $this->packageStorage->setSendPackages($transporter, $sendPackagesResults, new \DateTime());
             }
         }
     }
