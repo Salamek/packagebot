@@ -138,7 +138,7 @@ class ProfessionalParcelLogistic implements ITransporter
 
             /** @var Package $foundSendPackage */
             $foundSendPackage = $packagesByPackageNumber[$result['ItemKey']];
-            $return[] = new SendPackageResult(($result['Code'] == 0 ? true : false), $result['Code'], $result['Message'], $foundSendPackage->getSeriesNumberInfo());
+            $return[] = new SendPackageResult(($result['Code'] == 0 ? true : false), $result['Code'], (!$result['Message'] ? ($result['Code'] == 0 ? 'OK' : 'ERR') : $result['Message']), $foundSendPackage->getSeriesNumberInfo());
         }
 
         return $return;
