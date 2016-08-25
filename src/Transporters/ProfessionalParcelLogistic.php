@@ -87,7 +87,7 @@ class ProfessionalParcelLogistic implements ITransporter
             {
                 $professionalParcelLogisticPaymentInfo = null;
             }
-            $professionalParcelLogisticRecipient = new Recipient($package->getRecipient()->getCity(), $package->getRecipient()->getCompany(), $package->getRecipient()->getStreet().' '.$package->getRecipient()->getStreetNumber(), $package->getRecipient()->getZipCode(), $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName(), $package->getRecipient()->getCountry(), $package->getRecipient()->getWww());
+            $professionalParcelLogisticRecipient = new Recipient($package->getRecipient()->getCity(), ($package->getRecipient()->getCompany() ? $package->getRecipient()->getCompany() : $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName()) , $package->getRecipient()->getStreet().' '.$package->getRecipient()->getStreetNumber(), $package->getRecipient()->getZipCode(), $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName(), $package->getRecipient()->getCountry(), $package->getRecipient()->getWww());
 
             if (!is_null($package->getWeightedPackageInfo()))
             {

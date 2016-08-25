@@ -128,7 +128,8 @@ class PackageBot extends Nette\Object
         $map = [
             TransportService::CZECH_POST_PACKAGE_TO_HAND => Transporter::CZECH_POST,
             TransportService::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE => Transporter::CZECH_POST,
-            TransportService::PPL_PARCEL_CZ_PRIVATE => Transporter::PPL
+            TransportService::PPL_PARCEL_CZ_PRIVATE => Transporter::PPL,
+            TransportService::PPL_PARCEL_CZ_PRIVATE_COD => Transporter::PPL,
         ];
 
         if (!array_key_exists($transportService, $map))
@@ -244,5 +245,21 @@ class PackageBot extends Nette\Object
             $pdf->Output($fullPath, 'F');
             return $fullPath;
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getTransporters()
+    {
+        return $this->transporters;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSender()
+    {
+        return $this->sender;
     }
 }
