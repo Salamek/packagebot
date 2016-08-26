@@ -113,10 +113,12 @@ class PackageBot extends Nette\Object
             {
                 $iTransporter = $this->getTransporter($transporter);
                 $unsentPackages = $this->packageStorage->getUnSentPackages($transporter);
-
-                /** @var SendPackageResult[] $sendPackagesResults */
-                $sendPackagesResults = $iTransporter->doSendPackages($unsentPackages);
-                $this->packageStorage->setSendPackages($transporter, $sendPackagesResults, new \DateTime());
+                if (!empty($unsentPackages))
+                {
+                    /** @var SendPackageResult[] $sendPackagesResults */
+                    $sendPackagesResults = $iTransporter->doSendPackages($unsentPackages);
+                    $this->packageStorage->setSendPackages($transporter, $sendPackagesResults, new \DateTime());
+                }
             }
         }
     }
