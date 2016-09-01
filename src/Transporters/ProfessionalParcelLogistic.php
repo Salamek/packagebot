@@ -128,19 +128,22 @@ class ProfessionalParcelLogistic implements ITransporter
         }
 
         $return = [];
-        $results = $this->api->createPackages($transporterPackages);
-        foreach($results AS $result)
+        if (!empty($transporterPackages))
         {
-            if (!array_key_exists($result->ItemKey, $packagesByPackageNumber))
+            $results = $this->api->createPackages($transporterPackages);
+            foreach($results AS $result)
             {
-                throw new \Exception('Returned PackageNumber is not in send PackageNumbers');
+                if (!array_key_exists($result->ItemKey, $packagesByPackageNumber))
+                {
+                    throw new \Exception('Returned PackageNumber is not in send PackageNumbers');
+                }
+
+                /** @var Package $foundSendPackage */
+                $foundSendPackage = $packagesByPackageNumber[$result->ItemKey];
+                $return[] = new SendPackageResult(($result->Code == 0 ? true : false), $result->Code, (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message), $foundSendPackage->getSeriesNumberInfo());
             }
-
-            /** @var Package $foundSendPackage */
-            $foundSendPackage = $packagesByPackageNumber[$result->ItemKey];
-            $return[] = new SendPackageResult(($result->Code == 0 ? true : false), $result->Code, (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message), $foundSendPackage->getSeriesNumberInfo());
         }
-
+        
         return $return;
     }
 
