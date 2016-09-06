@@ -172,4 +172,13 @@ class ProfessionalParcelLogistic implements ITransporter
         $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
         return Label::generateLabelQuarter($pdf, $transporterPackage, $position);
     }
+
+    /**
+     * @param string $packageNumber
+     * @return string
+     */
+    public function doGenerateTrackingUrl($packageNumber)
+    {
+        return 'https://www.ppl.cz/main2.aspx?cls=Package&idSearch='.$packageNumber;
+    }
 }

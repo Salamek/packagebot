@@ -139,4 +139,13 @@ class CzechPost implements ITransporter
         $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
         return Label::generateLabelQuarter($pdf, $transporterPackage, $position);
     }
+
+    /**
+     * @param string $packageNumber
+     * @return string
+     */
+    public function doGenerateTrackingUrl($packageNumber)
+    {
+        return 'https://www.postaonline.cz/trackandtrace/-/zasilka/cislo?parcelNumbers='.$packageNumber;
+    }
 }

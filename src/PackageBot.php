@@ -250,6 +250,23 @@ class PackageBot extends Nette\Object
     }
 
     /**
+     * @param Package $package
+     * @return string
+     */
+    public function getTrackingUrl(Package $package)
+    {
+        //Get transporter from package
+        $transporter = $this->transportServiceToTransporter($package->getTransportService());
+        //Get transporter class
+        $iTransporter = $this->getTransporter($transporter);
+
+        //Test if we can create Transporter package
+        $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
+
+        return $iTransporter->doGenerateTrackingUrl($transporterPackage->getPackageNumber());
+    }
+
+    /**
      * @return array
      */
     public function getTransporters()
