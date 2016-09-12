@@ -8,6 +8,7 @@ use Salamek\PackageBot\Model\SendPackageResult;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
 use Salamek\PplMyApi\Api;
 use Salamek\PplMyApi\Enum\Product;
+use Salamek\PplMyApi\Exception\OfflineException;
 use Salamek\PplMyApi\Exception\WrongDataException;
 use Salamek\PplMyApi\Label;
 use Salamek\PplMyApi\Model\Package as TransporterPackage;
@@ -43,10 +44,11 @@ class ProfessionalParcelLogistic implements ITransporter
     private $professionalParcelLogisticSender;
 
     /**
-     * Ppl constructor.
+     * ProfessionalParcelLogistic constructor.
      * @param array $configuration
      * @param array $sender
      * @param $cookieJar
+     * @throws \Salamek\PackageBot\Exception\OfflineException
      */
     public function __construct(array $configuration, array $sender, $cookieJar)
     {
@@ -57,7 +59,14 @@ class ProfessionalParcelLogistic implements ITransporter
 
         $this->professionalParcelLogisticSender = new Sender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
 
-        $this->api = new Api($this->username, $this->password, $this->customerId);
+        try
+        {
+            $this->api = new Api($this->username, $this->password, $this->customerId);
+        }
+        catch (OfflineException $e)
+        {
+            throw new \Salamek\PackageBot\Exception\OfflineException($e);
+        }
     }
 
     /**
