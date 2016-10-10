@@ -65,7 +65,7 @@ class ProfessionalParcelLogistic implements ITransporter
         }
         catch (OfflineException $e)
         {
-            throw new \Salamek\PackageBot\Exception\OfflineException($e->getMessage());
+            throw new \Salamek\PackageBot\Exception\OfflineException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
