@@ -5,7 +5,6 @@ use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\SendPackageResult;
-use Salamek\PackageBot\Model\SeriesNumberInfo;
 use Salamek\PplMyApi\Api;
 use Salamek\PplMyApi\Enum\Product;
 use Salamek\PplMyApi\Exception\OfflineException;
@@ -17,7 +16,6 @@ use Salamek\PplMyApi\Model\Recipient;
 use Salamek\PplMyApi\Model\Sender;
 
 use Salamek\PackageBot\Model\Package;
-use Salamek\PackageBot\IPackageBotStorage;
 
 
 /**
@@ -109,7 +107,16 @@ class ProfessionalParcelLogistic implements ITransporter
                 $weight = null;
             }
 
-            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $packageProductType, $weight, $package->getDescription(), $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
+            if (strlen($package->getDescription()) > 300)
+            {
+                $description = substr($package->getDescription(), 0, 300);
+            }
+            else
+            {
+                $description = $package->getDescription();
+            }
+
+            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $packageProductType, $weight, $description, $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
         }
         catch (WrongDataException $e)
         {
