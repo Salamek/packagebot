@@ -243,7 +243,7 @@ class PackageBot extends Nette\Object
         }
         else
         {
-            $fullPath = $savePath.'/'.implode('-', $packageNumbers).'.pdf';
+            $fullPath = $savePath.'/'.md5(implode('-', $packageNumbers)).'.pdf';
             $pdf->Output($fullPath, 'F');
             return $fullPath;
         }
