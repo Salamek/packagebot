@@ -109,7 +109,7 @@ class ProfessionalParcelLogistic implements ITransporter
 
             if (strlen($package->getDescription()) > 300)
             {
-                $description = substr($package->getDescription(), 0, 300);
+                $description = mb_substr($package->getDescription(), 0, 300);
             }
             else
             {
