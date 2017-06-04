@@ -103,11 +103,36 @@ class PackageBot extends Nette\Object
     }
 
     /**
-     *
+     * @param array $transporterNames
+     * @throws \Exception
      */
-    public function flush()
+    public function flush(array $transporterNames = [])
     {
-        foreach($this->transporters AS $transporter => $config)
+        if (empty($transporterNames))
+        {
+            $transportersData = $this->transporters;
+        }
+        else
+        {
+            $transportersData = [];
+
+            foreach($transporterNames AS $transporterName)
+            {
+                if (!array_key_exists($transporterName, $this->transporters))
+                {
+                    throw new \Exception(sprintf('Transporter %s is not configured', $transporterName));
+                }
+
+                if (!$this->transporters[$transporterName]['enabled'])
+                {
+                    throw new \Exception(sprintf('Transporter %s is not enabled', $transporterName));
+                }
+
+                $transportersData[$transporterName] = $this->transporters[$transporterName];
+            }
+        }
+
+        foreach($transportersData AS $transporter => $config)
         {
             if ($config['enabled'])
             {
