@@ -1,5 +1,5 @@
 {
-  "name": "salamek/packagebot-local",
+  "name": "salamek/packagebot",
   "description": "Packagebot service to handle packages simply and fast",
   "keywords": ["czech post", "Česká pošta", "api", "PPL", "Ulozenka", "Packagebot"],
   "homepage": "https://gitlab.salamek.cz/sadam/packagebot-local",
