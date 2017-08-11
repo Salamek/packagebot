@@ -45,4 +45,8 @@ packageBot:
       enabled: false
       username:
       password:
+    zasilkovna:
+      enabled: false
+      apiPassword: ''
+      apiKey: ''
 ```
