@@ -3,7 +3,7 @@
 ## Install by
 
 ```bash
-composer require salamek/packagebot-local dev-master
+composer require salamek/packagebot dev-master
 ```
 
 ## Usage
