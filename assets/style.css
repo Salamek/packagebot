@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'packagebot';
-  src:  url('fonts/packagebot.eot?bhfxsw');
-  src:  url('fonts/packagebot.eot?bhfxsw#iefix') format('embedded-opentype'),
-    url('fonts/packagebot.ttf?bhfxsw') format('truetype'),
-    url('fonts/packagebot.woff?bhfxsw') format('woff'),
-    url('fonts/packagebot.svg?bhfxsw#packagebot') format('svg');
+  src:  url('fonts/packagebot.eot?7ksz6m');
+  src:  url('fonts/packagebot.eot?7ksz6m#iefix') format('embedded-opentype'),
+    url('fonts/packagebot.ttf?7ksz6m') format('truetype'),
+    url('fonts/packagebot.woff?7ksz6m') format('woff'),
+    url('fonts/packagebot.svg?7ksz6m#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,10 +24,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-czech-post:before {
+.icon-packagebot-zasilkovna:before {
   content: "\e900";
 }
-.icon-ppl:before {
+.icon-packagebot-czech-post:before {
   content: "\e901";
+  color: #1f357a;
 }
-
+.icon-packagebot-ppl:before {
+  content: "\e902";
+}
