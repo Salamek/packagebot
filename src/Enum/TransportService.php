@@ -12,6 +12,7 @@ class TransportService
     const CZECH_POST_PACKAGE_TO_THE_POST_OFFICE = 2;
     const PPL_PARCEL_CZ_PRIVATE = 3;
     const PPL_PARCEL_CZ_PRIVATE_COD = 4;
+    const ZASILKOVNA = 5;
 
     /** @var array */
     public static $list = [
@@ -19,5 +20,6 @@ class TransportService
         self::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE,
         self::PPL_PARCEL_CZ_PRIVATE,
         self::PPL_PARCEL_CZ_PRIVATE_COD,
+        self::ZASILKOVNA
     ];
 }

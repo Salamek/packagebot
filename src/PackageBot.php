@@ -88,6 +88,7 @@ class PackageBot extends Nette\Object
             case Transporter::CZECH_POST:
             case Transporter::PPL:
             case Transporter::ULOZENKA:
+            case Transporter::ZASILKOVNA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
                 $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->cookieJar);
@@ -157,6 +158,7 @@ class PackageBot extends Nette\Object
             TransportService::CZECH_POST_PACKAGE_TO_THE_POST_OFFICE => Transporter::CZECH_POST,
             TransportService::PPL_PARCEL_CZ_PRIVATE => Transporter::PPL,
             TransportService::PPL_PARCEL_CZ_PRIVATE_COD => Transporter::PPL,
+            TransportService::ZASILKOVNA => Transporter::ZASILKOVNA,
         ];
 
         if (!array_key_exists($transportService, $map))
