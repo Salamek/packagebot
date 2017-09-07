@@ -186,15 +186,36 @@ class PackageBot extends Nette\Object
             //Get transporter class
             $iTransporter = $this->getTransporter($transporter);
 
-            //Get next unique ID for package from series, this action generates PackageNumber too
-            $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $transporterConfig['senderId']);
-            $package->setSeriesNumberInfo($seriesNumberInfo);
+            if ($iTransporter->hasLocalSeriesNumber())
+            {
+                //Get next unique ID for package from series, this action generates PackageNumber too
+                $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $transporterConfig['senderId']);
+                $package->setSeriesNumberInfo($seriesNumberInfo);
 
-            //Test if we can create Transporter package
-            $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
+                //Test if we can create Transporter package
+                $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
 
-            //If we get here, everything went ok, so we can save package into storage
-            $this->packageStorage->savePackage($transporter, $transporterPackage->getPackageNumber(), $package);
+                //If we get here, everything went ok, so we can save package into storage
+                $this->packageStorage->savePackage($transporter, $transporterPackage->getPackageNumber(), $package);
+            }
+            else
+            {
+
+                $sendPackagesResults = $iTransporter->doSendPackages([$package]);
+
+                foreach ($sendPackagesResults AS $sendPackagesResult)
+                {
+                    $this->packageStorage->savePackage($transporter, $sendPackagesResult->getSeriesNumberInfo()->getSeriesId(), $package);
+                }
+
+
+                $this->packageStorage->setSendPackages($transporter, $sendPackagesResults, new \DateTime());
+
+                //$package->setSeriesNumberInfo($seriesNumberInfo);
+                //Test if we can create Transporter package
+                $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
+
+            }
         }
     }
 
@@ -224,7 +245,7 @@ class PackageBot extends Nette\Object
             //Test if we can create Transporter package
             $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
 
-            $packageNumbers[] = $transporterPackage->getPackageNumber();
+            $packageNumbers[] = $package->getSeriesNumberInfo()->getSeriesNumber();
         }
 
         $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
@@ -290,7 +311,7 @@ class PackageBot extends Nette\Object
         //Test if we can create Transporter package
         $transporterPackage = $iTransporter->packageBotPackageToTransporterPackage($package);
 
-        return $iTransporter->doGenerateTrackingUrl($transporterPackage->getPackageNumber());
+        return $iTransporter->doGenerateTrackingUrl($package);
     }
 
     /**
