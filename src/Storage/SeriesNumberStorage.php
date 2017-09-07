@@ -34,6 +34,6 @@ class PackageBotSeriesNumberStorage extends FileStorage implements ISeriesNumber
 
         $this->set(self::STORAGE_TABLE_PACKAGE_ID.$transporter, $key, $value);
 
-        return new SeriesNumberInfo(0, $value);
+        return new SeriesNumberInfo($value);
     }
 }

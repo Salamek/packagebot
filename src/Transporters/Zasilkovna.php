@@ -86,7 +86,7 @@ class Zasilkovna implements ITransporter
 
 
             $result = $this->api->createPacket($transporterPackage);
-            $seriesNumberInfo = new SeriesNumberInfo(null, $result->id);
+            $seriesNumberInfo = new SeriesNumberInfo($result->id);
             $package->setSeriesNumberInfo($seriesNumberInfo);
 
             $return[] = new SendPackageResult(true, 'OK', 'OK', $package->getSeriesNumberInfo());

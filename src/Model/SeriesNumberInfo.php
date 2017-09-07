@@ -19,7 +19,7 @@ class SeriesNumberInfo
      * @param int $seriesId
      * @param int $seriesNumber
      */
-    public function __construct($seriesId, $seriesNumber)
+    public function __construct($seriesNumber, $seriesId = null)
     {
         $this->seriesId = $seriesId;
         $this->seriesNumber = $seriesNumber;
