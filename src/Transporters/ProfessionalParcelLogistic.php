@@ -201,6 +201,17 @@ class ProfessionalParcelLogistic implements ITransporter
     }
 
     /**
+     * @param Package $package
+     * @return string
+     * @throws WrongDeliveryDataException
+     */
+    public function getPackageNumber(Package $package)
+    {
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return $transporterPackage->getPackageNumber();
+    }
+
+    /**
      * @return bool
      */
     public function hasLocalSeriesNumber()

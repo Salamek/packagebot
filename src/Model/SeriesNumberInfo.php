@@ -8,21 +8,26 @@ namespace Salamek\PackageBot\Model;
 
 class SeriesNumberInfo
 {
-    /** @var integer */
-    private $seriesId;
+    /** @var integer|null */
+    private $seriesId = null;
 
     /** @var integer */
     private $seriesNumber;
 
+    /** @var string|null */
+    private $packageNumber;
+
     /**
      * SeriesNumberInfo constructor.
-     * @param int $seriesId
-     * @param int $seriesNumber
+     * @param $seriesNumber
+     * @param null $seriesId
+     * @param null $packageNumber
      */
-    public function __construct($seriesNumber, $seriesId = null)
+    public function __construct($seriesNumber, $seriesId = null, $packageNumber = null)
     {
         $this->seriesId = $seriesId;
         $this->seriesNumber = $seriesNumber;
+        $this->packageNumber = $packageNumber;
     }
 
     /**
@@ -55,5 +60,21 @@ class SeriesNumberInfo
     public function getSeriesNumber()
     {
         return $this->seriesNumber;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPackageNumber()
+    {
+        return $this->packageNumber;
+    }
+
+    /**
+     * @param null|string $packageNumber
+     */
+    public function setPackageNumber($packageNumber)
+    {
+        $this->packageNumber = $packageNumber;
     }
 }

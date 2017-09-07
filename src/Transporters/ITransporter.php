@@ -53,6 +53,12 @@ interface ITransporter
     public function doGenerateTrackingUrl(Package $package);
 
     /**
+     * @param Package $package
+     * @return string
+     */
+    public function getPackageNumber(Package $package);
+
+    /**
      * @return bool
      */
     public function hasLocalSeriesNumber();

@@ -83,10 +83,10 @@ class Zasilkovna implements ITransporter
             {
                 throw new WrongDeliveryDataException($e->getMessage(), $e->getCode(), $e->getPrevious());
             }
-
-
+            
             $result = $this->api->createPacket($transporterPackage);
-            $seriesNumberInfo = new SeriesNumberInfo($result->id);
+
+            $seriesNumberInfo = new SeriesNumberInfo($result->id, null, $result->barcode);
             $package->setSeriesNumberInfo($seriesNumberInfo);
 
             $return[] = new SendPackageResult(true, 'OK', 'OK', $package->getSeriesNumberInfo());
@@ -103,6 +103,15 @@ class Zasilkovna implements ITransporter
     public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT)
     {
         return $pdf;
+    }
+
+    /**
+     * @param Package $package
+     * @throws \Exception
+     */
+    public function getPackageNumber(Package $package)
+    {
+        throw new \Exception('This transporter service has no localy generated series numbers!');
     }
 
     /**
