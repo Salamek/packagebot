@@ -45,6 +45,9 @@ class Package
     /** @var null|SeriesNumberInfo */
     private $parentSeriesNumberInfo = null;
 
+    /** @var array */
+    private $specialData = [];
+
     /**
      * PackageBotPackage constructor.
      * @param $orderId
@@ -68,7 +71,8 @@ class Package
         WeightedPackageInfo $weightedPackageInfo = null,
         $packageCount = 1,
         $packagePosition = 1,
-        $parentSeriesNumberInfo = null
+        $parentSeriesNumberInfo = null,
+        $specialData = []
     ) {
         $this->setOrderId($orderId);
         $this->setGoodsPrice($goodsPrice);
@@ -273,5 +277,29 @@ class Package
     public function getParentSeriesNumberInfo()
     {
         return $this->parentSeriesNumberInfo;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getSpecialData($key)
+    {
+        if (!array_key_exists($key, $this->specialData))
+        {
+            throw new \Exception('Key not found in special data');
+        }
+
+        return $this->specialData[$key];
+    }
+
+    /**
+     * @param $key
+     * @param $data
+     */
+    public function setSpecialData($key, $data)
+    {
+        $this->specialData[$key] = $data;
     }
 }
