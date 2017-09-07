@@ -141,11 +141,21 @@ class CzechPost implements ITransporter
     }
 
     /**
-     * @param string $packageNumber
+     * @param Package $package
      * @return string
+     * @throws WrongDeliveryDataException
      */
-    public function doGenerateTrackingUrl($packageNumber)
+    public function doGenerateTrackingUrl(Package $package)
     {
-        return 'https://www.postaonline.cz/trackandtrace/-/zasilka/cislo?parcelNumbers='.$packageNumber;
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return 'https://www.postaonline.cz/trackandtrace/-/zasilka/cislo?parcelNumbers='.$transporterPackage->getPackageNumber();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLocalSeriesNumber()
+    {
+        return true;
     }
 }

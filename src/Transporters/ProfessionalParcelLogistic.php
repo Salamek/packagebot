@@ -190,11 +190,21 @@ class ProfessionalParcelLogistic implements ITransporter
     }
 
     /**
-     * @param string $packageNumber
+     * @param Package $package
      * @return string
+     * @throws WrongDeliveryDataException
      */
-    public function doGenerateTrackingUrl($packageNumber)
+    public function doGenerateTrackingUrl(Package $package)
     {
-        return 'https://www.ppl.cz/main2.aspx?cls=Package&idSearch='.$packageNumber;
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return 'https://www.ppl.cz/main2.aspx?cls=Package&idSearch='.$transporterPackage->getPackageNumber();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLocalSeriesNumber()
+    {
+        return true;
     }
 }

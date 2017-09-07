@@ -47,8 +47,13 @@ interface ITransporter
     public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT);
 
     /**
-     * @param string $packageNumber
+     * @param Package $package
      * @return string
      */
-    public function doGenerateTrackingUrl($packageNumber);
+    public function doGenerateTrackingUrl(Package $package);
+
+    /**
+     * @return bool
+     */
+    public function hasLocalSeriesNumber();
 }
