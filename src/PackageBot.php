@@ -193,7 +193,7 @@ class PackageBot extends Nette\Object
                 $seriesNumberInfo = $this->seriesNumberStorage->getNextSeriesNumberId($transporter, $package->getTransportService(), $transporterConfig['senderId']);
                 $package->setSeriesNumberInfo($seriesNumberInfo);
 
-                $seriesNumberInfo->setPackageNumber($transporter->getPackageNumber($package));
+                $seriesNumberInfo->setPackageNumber($iTransporter->getPackageNumber($package));
                 $package->setSeriesNumberInfo($seriesNumberInfo);
 
                 //If we get here, everything went ok, so we can save package into storage
@@ -291,6 +291,7 @@ class PackageBot extends Nette\Object
     {
         //Get transporter from package
         $transporter = $this->transportServiceToTransporter($package->getTransportService());
+
         //Get transporter class
         $iTransporter = $this->getTransporter($transporter);
 

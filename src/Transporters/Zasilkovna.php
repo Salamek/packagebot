@@ -14,8 +14,10 @@ use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
 use Salamek\Zasilkovna\ApiRest;
-use Salamek\Zasilkovna\ApiSoap;
+use Salamek\Zasilkovna\Branch;
 use Salamek\Zasilkovna\Exception\WrongDataException;
+use Salamek\Zasilkovna\Label;
+use Salamek\Zasilkovna\Model\BranchStorageSqLite;
 use Salamek\Zasilkovna\Model\PacketAttributes;
 use Salamek\PackageBot\Model\SendPackageResult;
 
@@ -25,6 +27,10 @@ class Zasilkovna implements ITransporter
 
     private $api;
 
+    private $branch;
+
+    private $label;
+
     public function __construct(array $configuration, array $sender, $cookieJar)
     {
         $this->sender = $sender;
@@ -32,6 +38,8 @@ class Zasilkovna implements ITransporter
         /*try
         {*/
             $this->api = new ApiRest($configuration['apiPassword'], $configuration['apiKey']);
+            $this->branch = new Branch($configuration['apiKey'], new BranchStorageSqLite()); //@TODO Implement custom storage using nette cache or Packagebot generic storage ?
+            $this->label = new Label($this->api, $this->branch);
             //$this->api = new ApiSoap($configuration['apiPassword'], $configuration['apiKey']);
         /*}
         catch (OfflineException $e)
@@ -51,7 +59,7 @@ class Zasilkovna implements ITransporter
             $package->getRecipient()->getLastName(),
             ($package->getGoodsPrice() ? $package->getGoodsPrice() : null),
             $addressId,
-            ($package->getSeriesNumberInfo() ? $package->getSeriesNumberInfo()->getSeriesId() : null),
+            ($package->getSeriesNumberInfo() ? $package->getSeriesNumberInfo()->getSeriesNumber() : null),
             $package->getRecipient()->getCompany(),
             $package->getRecipient()->getEmail(),
             $package->getRecipient()->getPhone(),
@@ -95,14 +103,28 @@ class Zasilkovna implements ITransporter
         return $return;
     }
 
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @return \TCPDF
+     */
     public function doGenerateLabelFull(\TCPDF $pdf, Package $package)
     {
-        return $pdf;
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return $this->label->generateLabelFull($pdf, $transporterPackage);
     }
 
+    /**
+     * @param \TCPDF $pdf
+     * @param Package $package
+     * @param int $position
+     * @return \TCPDF
+     * @throws \Exception
+     */
     public function doGenerateLabelQuarter(\TCPDF $pdf, Package $package, $position = LabelPosition::TOP_LEFT)
     {
-        return $pdf;
+        $transporterPackage = $this->packageBotPackageToTransporterPackage($package);
+        return $this->label->generateLabelQuarter($pdf, $transporterPackage, $position);
     }
 
     /**
