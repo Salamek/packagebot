@@ -47,6 +47,7 @@ packageBot:
       password:
     zasilkovna:
       enabled: false
+      senderId: 'user@example.com'
       apiPassword: ''
       apiKey: ''
 ```
