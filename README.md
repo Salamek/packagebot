@@ -47,6 +47,7 @@ packageBot:
       password:
     zasilkovna:
       enabled: false
+      eshop: 'your-eshop.com'
       apiPassword: ''
       apiKey: ''
 ```

@@ -21,18 +21,36 @@ use Salamek\Zasilkovna\Model\BranchStorageSqLite;
 use Salamek\Zasilkovna\Model\PacketAttributes;
 use Salamek\PackageBot\Model\SendPackageResult;
 
+/**
+ * Class Zasilkovna
+ * @package Salamek\PackageBot\Transporters
+ */
 class Zasilkovna implements ITransporter
 {
+    /** @var array */
     private $sender;
 
+    /** @var ApiRest */
     private $api;
 
+    /** @var Branch */
     private $branch;
 
+    /** @var Label */
     private $label;
 
+    /** @var array */
+    private $configuration;
+
+    /**
+     * Zasilkovna constructor.
+     * @param array $configuration
+     * @param array $sender
+     * @param $cookieJar
+     */
     public function __construct(array $configuration, array $sender, $cookieJar)
     {
+        $this->configuration = $configuration;
         $this->sender = $sender;
 
         /*try
@@ -48,6 +66,10 @@ class Zasilkovna implements ITransporter
         }*/
     }
 
+    /**
+     * @param Package $package
+     * @return PacketAttributes
+     */
     public function packageBotPackageToTransporterPackage(Package $package)
     {
         //Get address ID
@@ -66,7 +88,7 @@ class Zasilkovna implements ITransporter
             ($package->getPaymentInfo() ? $package->getPaymentInfo()->getCashOnDeliveryCurrency() : null),
             ($package->getPaymentInfo() ? $package->getPaymentInfo()->getCashOnDeliveryPrice() : null),
             ($package->getWeightedPackageInfo() ? $package->getWeightedPackageInfo()->getWeight() : null),
-            $this->sender['www'],
+            $this->configuration['eshop'],
             false,
             $package->getRecipient()->getStreet(),
             $package->getRecipient()->getStreetNumber(),
@@ -75,6 +97,11 @@ class Zasilkovna implements ITransporter
         );
     }
 
+    /**
+     * @param array $packages
+     * @return array
+     * @throws WrongDeliveryDataException
+     */
     public function doSendPackages(array $packages)
     {
         $return = [];
