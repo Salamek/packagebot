@@ -48,6 +48,7 @@ packageBot:
     zasilkovna:
       enabled: false
       eshop: 'your-eshop.com'
+      senderId: 'user@example.com'
       apiPassword: ''
       apiKey: ''
 ```
