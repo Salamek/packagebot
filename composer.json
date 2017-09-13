@@ -16,7 +16,7 @@
   "require": {
     "php": ">=5.3.0",
     "tecnickcom/tcpdf": "^6.2",
-    "salamek/czech-post-api": "dev-master",
+    "salamek/czech-post-api": "^v1.0",
     "salamek/ppl-my-api": "^v1.1.3",
     "salamek/zasilkovna": "^v1.0"
   },
