@@ -147,7 +147,18 @@ class ProfessionalParcelLogistic implements ITransporter
         if (!empty($transporterPackages))
         {
             $results = $this->api->createPackages($transporterPackages);
-            foreach($results AS $result)
+
+            //This may return simple result for single package or array for multiple packages
+            /*
+             * stdClass Object
+                (
+                    [Code] => 0
+                    [ItemKey] => 40990940972
+                    [Message] =>
+                )
+                */
+
+            $proccessResult = function($result) use($packagesByPackageNumber)
             {
                 if (!array_key_exists($result->ItemKey, $packagesByPackageNumber))
                 {
@@ -156,7 +167,19 @@ class ProfessionalParcelLogistic implements ITransporter
 
                 /** @var Package $foundSendPackage */
                 $foundSendPackage = $packagesByPackageNumber[$result->ItemKey];
-                $return[] = new SendPackageResult(($result->Code == 0 ? true : false), $result->Code, (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message), $foundSendPackage->getSeriesNumberInfo());
+                return new SendPackageResult(($result->Code == 0 ? true : false), $result->Code, (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message), $foundSendPackage->getSeriesNumberInfo());
+            };
+
+            if (property_exists($results, 'ItemKey'))
+            {
+                $return[] = $proccessResult($results);
+            }
+            else
+            {
+                foreach($results AS $result)
+                {
+                    $return[] = $proccessResult($result);
+                }
             }
         }
         
