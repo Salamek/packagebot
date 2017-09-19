@@ -15,6 +15,10 @@ extensions:
   packageBot: Extensions\PackageBot\DI\PackageBotExtension
 
 packageBot:
+  packageStorage: YourModel\PackageBotPackages
+  seriesNumberStorage: YourModel\PackageBotSeriesNumber
+  transporterDataGroupStorage: YourModel\TransporterDataGroupStorage
+  transporterDataItemStorage: YourModel\TransporterDataItemStorage
   sender:
     name: CALBUCO s.r.o.
     www: grizly.cz

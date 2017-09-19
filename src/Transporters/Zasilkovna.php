@@ -11,15 +11,117 @@ namespace Salamek\PackageBot\Transporters;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PackageBot\ITransporterDataStorage;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
+use Salamek\PackageBot\Model\TransporterDataItem;
+use Salamek\PackageBot\Storage\ITransporterDataGroupStorage;
+use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
 use Salamek\Zasilkovna\ApiRest;
 use Salamek\Zasilkovna\Branch;
 use Salamek\Zasilkovna\Exception\WrongDataException;
 use Salamek\Zasilkovna\Label;
 use Salamek\Zasilkovna\Model\BranchStorageSqLite;
+use Salamek\Zasilkovna\Model\IBranchStorage;
 use Salamek\Zasilkovna\Model\PacketAttributes;
 use Salamek\PackageBot\Model\SendPackageResult;
+
+/**
+ * Class BranchStoragePackageBot
+ * @package Salamek\PackageBot\Transporters
+ */
+class BranchStoragePackageBot implements IBranchStorage
+{
+    /** @var string */
+    private $expiry;
+
+    /** @var ITransporterDataGroupStorage */
+    private $transporterDataGroupStorage;
+
+    /** @var ITransporterDataItemStorage */
+    private $transporterDataItemStorage;
+
+    /**
+     * BranchStoragePackageBot constructor.
+     * @param ITransporterDataGroupStorage $transporterDataGroupStorage
+     * @param ITransporterDataItemStorage $transporterDataItemStorage
+     * @param string $expiry
+     */
+    public function __construct(ITransporterDataGroupStorage $transporterDataGroupStorage, ITransporterDataItemStorage $transporterDataItemStorage, $expiry = '-24 hours')
+    {
+        $this->transporterDataGroupStorage = $transporterDataGroupStorage;
+        $this->transporterDataItemStorage = $transporterDataItemStorage;
+        $this->expiry = $expiry;
+    }
+
+    /**
+     * @return \Generator
+     */
+    public function getBranchList()
+    {
+        foreach($this->transporterDataItemStorage->findBy(['transporter' => Transporter::ZASILKOVNA]) AS $item)
+        {
+            yield $item->getData();
+        }
+    }
+
+    /**
+     * @param $id
+     * @return mixed|null
+     */
+    public function find($id)
+    {
+        $found = $this->transporterDataItemStorage->findOneBy(['identifier' => $id]);
+        if ($found)
+        {
+            return $found->getData();
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $branchList
+     */
+    public function setBranchList($branchList)
+    {
+        //Delete all stuff
+        foreach($this->transporterDataItemStorage->findBy(['transporter' => Transporter::ZASILKOVNA]) AS $item)
+        {
+            $this->transporterDataItemStorage->delete($item);
+        }
+
+        foreach ($this->transporterDataGroupStorage->findBy(['transporter' => Transporter::ZASILKOVNA]) AS $group)
+        {
+            $this->transporterDataGroupStorage->delete($group);
+        }
+
+        foreach($branchList AS $item)
+        {
+            $group = null;
+            $dataItem = new TransporterDataItem(Transporter::ZASILKOVNA, $item['id'], strtoupper($item['country']).', '.$item['name'], $item, new \DateTime(), $group);
+            $this->transporterDataItemStorage->create($dataItem);
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStorageValid()
+    {
+        $found = $this->transporterDataItemStorage->findOneBy([], ['date' => 'DESC']);
+
+        $limit = new \DateTime();
+        $limit->modify($this->expiry);
+
+        if ($found && $found->getDate() > $limit)
+        {
+            return true;
+        }
+
+        return false;
+    }
+}
 
 /**
  * Class Zasilkovna
@@ -47,8 +149,16 @@ class Zasilkovna implements ITransporter
      * @param array $configuration
      * @param array $sender
      * @param $cookieJar
+     * @param ITransporterDataGroupStorage $transporterDataGroupStorage
+     * @param ITransporterDataItemStorage $transporterDataItemStorage
      */
-    public function __construct(array $configuration, array $sender, $cookieJar)
+    public function __construct(
+        array $configuration,
+        array $sender,
+        $cookieJar,
+        ITransporterDataGroupStorage $transporterDataGroupStorage,
+        ITransporterDataItemStorage $transporterDataItemStorage
+    )
     {
         $this->configuration = $configuration;
         $this->sender = $sender;
@@ -56,7 +166,7 @@ class Zasilkovna implements ITransporter
         /*try
         {*/
             $this->api = new ApiRest($configuration['apiPassword'], $configuration['apiKey']);
-            $this->branch = new Branch($configuration['apiKey'], new BranchStorageSqLite()); //@TODO Implement custom storage using nette cache or Packagebot generic storage ?
+            $this->branch = new Branch($configuration['apiKey'], new BranchStoragePackageBot($transporterDataGroupStorage, $transporterDataItemStorage));
             $this->label = new Label($this->api, $this->branch);
             //$this->api = new ApiSoap($configuration['apiPassword'], $configuration['apiKey']);
         /*}

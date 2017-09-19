@@ -4,7 +4,10 @@ namespace Salamek\PackageBot\Transporters;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
+use Salamek\PackageBot\ITransporterDataStorage;
 use Salamek\PackageBot\Model\SendPackageResult;
+use Salamek\PackageBot\Storage\ITransporterDataGroupStorage;
+use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
 use Salamek\PplMyApi\Api;
 use Salamek\PplMyApi\Enum\Product;
 use Salamek\PplMyApi\Exception\OfflineException;
@@ -46,9 +49,17 @@ class ProfessionalParcelLogistic implements ITransporter
      * @param array $configuration
      * @param array $sender
      * @param $cookieJar
+     * @param ITransporterDataGroupStorage $transporterDataGroupStorage
+     * @param ITransporterDataItemStorage $transporterDataItemStorage
      * @throws \Salamek\PackageBot\Exception\OfflineException
      */
-    public function __construct(array $configuration, array $sender, $cookieJar)
+    public function __construct(
+        array $configuration,
+        array $sender, 
+        $cookieJar,
+        ITransporterDataGroupStorage $transporterDataGroupStorage,
+        ITransporterDataItemStorage $transporterDataItemStorage
+    )
     {
         $this->customerId = $configuration['senderId'];
         $this->username = $configuration['username'];

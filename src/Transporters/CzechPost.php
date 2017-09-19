@@ -16,6 +16,8 @@ use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SendPackageResult;
+use Salamek\PackageBot\Storage\ITransporterDataGroupStorage;
+use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
 
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
@@ -42,8 +44,16 @@ class CzechPost implements ITransporter
      * @param array $configuration
      * @param array $sender
      * @param $cookieJar
+     * @param ITransporterDataGroupStorage $transporterDataGroupStorage
+     * @param ITransporterDataItemStorage $transporterDataItemStorage
      */
-    public function __construct(array $configuration, array $sender, $cookieJar)
+    public function __construct(
+        array $configuration, 
+        array $sender,
+        $cookieJar,
+        ITransporterDataGroupStorage $transporterDataGroupStorage,
+        ITransporterDataItemStorage $transporterDataItemStorage
+    )
     {
 
         $this->id = substr($configuration['senderId'], 1);

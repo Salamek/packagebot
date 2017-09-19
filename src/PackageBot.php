@@ -4,7 +4,6 @@ namespace Salamek\PackageBot;
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
 
-use Salamek\PackageBot\Enum\Attribute\LabelAttr;
 use Salamek\PackageBot\Enum\LabelDecomposition;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\Transporter;
@@ -12,6 +11,10 @@ use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SendPackageResult;
+use Salamek\PackageBot\Storage\IPackageStorage;
+use Salamek\PackageBot\Storage\ISeriesNumberStorage;
+use Salamek\PackageBot\Storage\ITransporterDataGroupStorage;
+use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
 use Salamek\PackageBot\Transporters\ITransporter;
 use Nette;
 
@@ -34,6 +37,12 @@ class PackageBot extends Nette\Object
     /** @var ISeriesNumberStorage */
     private $seriesNumberStorage;
 
+    /** @var ITransporterDataGroupStorage */
+    private $transporterDataGroupStorage;
+
+    /** @var ITransporterDataItemStorage */
+    private $transporterDataItemStorage;
+
     /** @var Nette\Caching\Cache */
     private $cache;
 
@@ -44,9 +53,20 @@ class PackageBot extends Nette\Object
      * @param array $sender
      * @param IPackageStorage $packageStorage
      * @param ISeriesNumberStorage $seriesNumberStorage
-     * @param string $tempDir
+     * @param ITransporterDataGroupStorage $transporterDataGroupStorage
+     * @param ITransporterDataItemStorage $transporterDataItemStorage
+     * @param null $tempDir
      */
-    public function __construct(Nette\Caching\IStorage $cacheStorage, array $transporters, array $sender, IPackageStorage $packageStorage, ISeriesNumberStorage $seriesNumberStorage, $tempDir = null)
+    public function __construct(
+        Nette\Caching\IStorage $cacheStorage, 
+        array $transporters, 
+        array $sender, 
+        IPackageStorage $packageStorage,
+        ISeriesNumberStorage $seriesNumberStorage,
+        ITransporterDataGroupStorage $transporterDataGroupStorage,
+        ITransporterDataItemStorage $transporterDataItemStorage,
+        $tempDir = null
+    )
     {
         $this->cache = new Nette\Caching\Cache($cacheStorage, self::$namespace);
         $this->transporters = $transporters;
@@ -64,6 +84,8 @@ class PackageBot extends Nette\Object
         $this->cookieJar = $cookieJar;
         $this->packageStorage = $packageStorage;
         $this->seriesNumberStorage = $seriesNumberStorage;
+        $this->transporterDataGroupStorage = $transporterDataGroupStorage;
+        $this->transporterDataItemStorage = $transporterDataItemStorage;
     }
 
     /**
@@ -91,7 +113,13 @@ class PackageBot extends Nette\Object
             case Transporter::ZASILKOVNA:
                 $className = 'Salamek\\PackageBot\\Transporters\\'.ucfirst($transporter);
                 /** @var ITransporter $iTransporter */
-                $iTransporter = new $className($this->transporters[$transporter], $this->sender, $this->cookieJar);
+                $iTransporter = new $className(
+                    $this->transporters[$transporter],
+                    $this->sender,
+                    $this->cookieJar,
+                    $this->transporterDataGroupStorage,
+                    $this->transporterDataItemStorage
+                );
                 break;
 
             default:
