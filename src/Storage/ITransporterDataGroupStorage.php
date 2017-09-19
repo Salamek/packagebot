@@ -34,8 +34,8 @@ interface ITransporterDataGroupStorage
     public function findBy(array $findBy, array $orderBy = []);
 
     /**
-     * @param ITransporterDataGroup $dataGroup
-     * @return void
+     * @param array $findBy
+     * @return mixed
      */
-    public function delete(ITransporterDataGroup $dataGroup);
+    public function deleteBy(array $findBy);
 }

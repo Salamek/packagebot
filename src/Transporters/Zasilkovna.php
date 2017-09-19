@@ -86,15 +86,10 @@ class BranchStoragePackageBot implements IBranchStorage
     public function setBranchList($branchList)
     {
         //Delete all stuff
-        foreach($this->transporterDataItemStorage->findBy(['transporter' => Transporter::ZASILKOVNA]) AS $item)
-        {
-            $this->transporterDataItemStorage->delete($item);
-        }
 
-        foreach ($this->transporterDataGroupStorage->findBy(['transporter' => Transporter::ZASILKOVNA]) AS $group)
-        {
-            $this->transporterDataGroupStorage->delete($group);
-        }
+        $this->transporterDataItemStorage->deleteBy(['transporter' => Transporter::ZASILKOVNA]);
+
+        $this->transporterDataGroupStorage->deleteBy(['transporter' => Transporter::ZASILKOVNA]);
 
         foreach($branchList AS $item)
         {

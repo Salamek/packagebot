@@ -33,8 +33,8 @@ interface ITransporterDataItemStorage
     public function findBy(array $findBy, array $orderBy = []);
 
     /**
-     * @param ITransporterDataItem $dataItem
-     * @return void
+     * @param array $findBy
+     * @return mixed
      */
-    public function delete(ITransporterDataItem $dataItem);
+    public function deleteBy(array $findBy);
 }
