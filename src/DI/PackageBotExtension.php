@@ -17,6 +17,8 @@ final class PackageBotExtension extends CompilerExtension
     private $defaults = [
         'packageStorage' => null,
         'seriesNumberStorage' => null,
+        'transporterDataGroupStorage' => null,
+        'transporterDataItemStorage' => null,
         'temp' => null,
         'transporters' => [],
         'sender' => []
