@@ -47,7 +47,7 @@ class BranchStoragePackageBot implements IBranchStorage
      * @param ITransporterDataItemStorage $transporterDataItemStorage
      * @param string $expiry
      */
-    public function __construct(ITransporterDataGroupStorage $transporterDataGroupStorage, ITransporterDataItemStorage $transporterDataItemStorage, $expiry = '-24 hours')
+    public function __construct(ITransporterDataGroupStorage $transporterDataGroupStorage, ITransporterDataItemStorage $transporterDataItemStorage, $expiry = '-7 days')
     {
         $this->transporterDataGroupStorage = $transporterDataGroupStorage;
         $this->transporterDataItemStorage = $transporterDataItemStorage;
