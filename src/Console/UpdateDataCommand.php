@@ -30,7 +30,7 @@ class UpdateDataCommand extends Command
 
         try {
             $packageBot->dataUpdate($transporterNames);
-            $output->writeLn('All presenters successfully generated');
+            $output->writeLn('Add data updated');
             return 0; // zero return code means everything is ok
         } catch (\Exception $e) {
             $output->writeLn('<error>' . $e->getMessage() . '</error>');
