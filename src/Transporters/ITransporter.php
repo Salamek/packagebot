@@ -65,4 +65,9 @@ interface ITransporter
      * @return bool
      */
     public function hasLocalSeriesNumber();
+
+    /**
+     * @return void
+     */
+    public function doDataUpdate();
 }

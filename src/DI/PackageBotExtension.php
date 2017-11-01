@@ -4,6 +4,7 @@ namespace Salamek\PackageBot\DI;
 
 use Nette\DI\CompilerExtension;
 use Nette\PhpGenerator\ClassType;
+use Kdyby\Console\DI\ConsoleExtension;
 
 /**
  * Description of PackageBotExtension
@@ -41,6 +42,8 @@ final class PackageBotExtension extends CompilerExtension
                 '@' . $config['transporterDataItemStorage'],
                 $config['temp']
             ]);
+
+        $this->loadConsole();
     }
 
     /**
@@ -49,6 +52,21 @@ final class PackageBotExtension extends CompilerExtension
     public function afterCompile(ClassType $class)
     {
 
+    }
+
+    protected function loadConsole()
+    {
+        $builder = $this->getContainerBuilder();
+        foreach ($this->loadFromFile(__DIR__ . '/console.neon') as $i => $command) {
+            $cli = $builder->addDefinition($this->prefix('cli.' . $i))
+                ->addTag(ConsoleExtension::TAG_COMMAND)
+                ->setInject(FALSE); // lazy injects
+            if (is_string($command)) {
+                $cli->setClass($command);
+            } else {
+                throw new \InvalidArgumentException;
+            }
+        }
     }
 
 }

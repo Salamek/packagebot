@@ -48,15 +48,15 @@ class ProfessionalParcelLogistic implements ITransporter
      * ProfessionalParcelLogistic constructor.
      * @param array $configuration
      * @param array $sender
-     * @param $cookieJar
+     * @param $tempDir
      * @param ITransporterDataGroupStorage $transporterDataGroupStorage
      * @param ITransporterDataItemStorage $transporterDataItemStorage
      * @throws \Salamek\PackageBot\Exception\OfflineException
      */
     public function __construct(
         array $configuration,
-        array $sender, 
-        $cookieJar,
+        array $sender,
+        $tempDir,
         ITransporterDataGroupStorage $transporterDataGroupStorage,
         ITransporterDataItemStorage $transporterDataItemStorage
     )
@@ -251,5 +251,10 @@ class ProfessionalParcelLogistic implements ITransporter
     public function hasLocalSeriesNumber()
     {
         return true;
+    }
+
+    public function doDataUpdate()
+    {
+        // TODO: Implement doDataUpdate() method.
     }
 }

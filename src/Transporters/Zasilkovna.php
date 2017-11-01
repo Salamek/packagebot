@@ -11,7 +11,6 @@ namespace Salamek\PackageBot\Transporters;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
-use Salamek\PackageBot\ITransporterDataStorage;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
 use Salamek\PackageBot\Model\TransporterDataItem;
@@ -21,7 +20,6 @@ use Salamek\Zasilkovna\ApiRest;
 use Salamek\Zasilkovna\Branch;
 use Salamek\Zasilkovna\Exception\WrongDataException;
 use Salamek\Zasilkovna\Label;
-use Salamek\Zasilkovna\Model\BranchStorageSqLite;
 use Salamek\Zasilkovna\Model\IBranchStorage;
 use Salamek\Zasilkovna\Model\PacketAttributes;
 use Salamek\PackageBot\Model\SendPackageResult;
@@ -143,14 +141,14 @@ class Zasilkovna implements ITransporter
      * Zasilkovna constructor.
      * @param array $configuration
      * @param array $sender
-     * @param $cookieJar
+     * @param $tempDir
      * @param ITransporterDataGroupStorage $transporterDataGroupStorage
      * @param ITransporterDataItemStorage $transporterDataItemStorage
      */
     public function __construct(
         array $configuration,
         array $sender,
-        $cookieJar,
+        $tempDir,
         ITransporterDataGroupStorage $transporterDataGroupStorage,
         ITransporterDataItemStorage $transporterDataItemStorage
     )
@@ -158,17 +156,9 @@ class Zasilkovna implements ITransporter
         $this->configuration = $configuration;
         $this->sender = $sender;
 
-        /*try
-        {*/
-            $this->api = new ApiRest($configuration['apiPassword'], $configuration['apiKey']);
-            $this->branch = new Branch($configuration['apiKey'], new BranchStoragePackageBot($transporterDataGroupStorage, $transporterDataItemStorage));
-            $this->label = new Label($this->api, $this->branch);
-            //$this->api = new ApiSoap($configuration['apiPassword'], $configuration['apiKey']);
-        /*}
-        catch (OfflineException $e)
-        {
-            throw new \Salamek\PackageBot\Exception\OfflineException($e->getMessage(), $e->getCode(), $e);
-        }*/
+        $this->api = new ApiRest($configuration['apiPassword'], $configuration['apiKey']);
+        $this->branch = new Branch($configuration['apiKey'], new BranchStoragePackageBot($transporterDataGroupStorage, $transporterDataItemStorage));
+        $this->label = new Label($this->api, $this->branch);
     }
 
     /**
@@ -262,6 +252,7 @@ class Zasilkovna implements ITransporter
     /**
      * @param Package $package
      * @throws \Exception
+     * @return void
      */
     public function getPackageNumber(Package $package)
     {
@@ -278,8 +269,19 @@ class Zasilkovna implements ITransporter
         return 'https://www.zasilkovna.cz/vyhledavani?number='.$transporterPackage->getId();
     }
 
+    /**
+     * @return bool
+     */
     public function hasLocalSeriesNumber()
     {
         return false;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function doDataUpdate()
+    {
+        $this->branch->initializeStorage(true);
     }
 }

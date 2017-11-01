@@ -28,9 +28,6 @@ class PackageBot extends Nette\Object
     /** @var array */
     private $sender;
 
-    /** @var string */
-    private $cookieJar;
-
     /** @var IPackageStorage */
     private $packageStorage;
 
@@ -46,6 +43,9 @@ class PackageBot extends Nette\Object
     /** @var Nette\Caching\Cache */
     private $cache;
 
+    /** @var null|string */
+    private $tempDir;
+
     /**
      * PackageBot constructor.
      * @param Nette\Caching\IStorage $cacheStorage
@@ -58,9 +58,9 @@ class PackageBot extends Nette\Object
      * @param null $tempDir
      */
     public function __construct(
-        Nette\Caching\IStorage $cacheStorage, 
-        array $transporters, 
-        array $sender, 
+        Nette\Caching\IStorage $cacheStorage,
+        array $transporters,
+        array $sender,
         IPackageStorage $packageStorage,
         ISeriesNumberStorage $seriesNumberStorage,
         ITransporterDataGroupStorage $transporterDataGroupStorage,
@@ -71,17 +71,7 @@ class PackageBot extends Nette\Object
         $this->cache = new Nette\Caching\Cache($cacheStorage, self::$namespace);
         $this->transporters = $transporters;
         $this->sender = $sender;
-
-        if (is_null($tempDir))
-        {
-            $cookieJar = tempnam(sys_get_temp_dir(), 'cookieJar.txt');
-        }
-        else
-        {
-            $cookieJar = $tempDir.'/cookieJar.txt';
-        }
-
-        $this->cookieJar = $cookieJar;
+        $this->tempDir = $tempDir;
         $this->packageStorage = $packageStorage;
         $this->seriesNumberStorage = $seriesNumberStorage;
         $this->transporterDataGroupStorage = $transporterDataGroupStorage;
@@ -116,7 +106,7 @@ class PackageBot extends Nette\Object
                 $iTransporter = new $className(
                     $this->transporters[$transporter],
                     $this->sender,
-                    $this->cookieJar,
+                    $this->tempDir,
                     $this->transporterDataGroupStorage,
                     $this->transporterDataItemStorage
                 );
@@ -129,6 +119,43 @@ class PackageBot extends Nette\Object
         }
 
         return $iTransporter;
+    }
+
+    public function dataUpdate(array $transporterNames = [])
+    {
+        if (empty($transporterNames))
+        {
+            $transportersData = $this->transporters;
+        }
+        else
+        {
+            $transportersData = [];
+
+            foreach($transporterNames AS $transporterName)
+            {
+                if (!array_key_exists($transporterName, $this->transporters))
+                {
+                    throw new \Exception(sprintf('Transporter %s is not configured', $transporterName));
+                }
+
+                if (!$this->transporters[$transporterName]['enabled'])
+                {
+                    throw new \Exception(sprintf('Transporter %s is not enabled', $transporterName));
+                }
+
+                $transportersData[$transporterName] = $this->transporters[$transporterName];
+            }
+        }
+
+        foreach($transportersData AS $transporter => $config)
+        {
+            if ($config['enabled'])
+            {
+                $iTransporter = $this->getTransporter($transporter);
+                /** @var SendPackageResult[] $sendPackagesResults */
+                $iTransporter->doDataUpdate();
+            }
+        }
     }
 
     /**
