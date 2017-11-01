@@ -24,7 +24,7 @@ class SyncCommand extends Command
         /** @var PackageBot $packageBot */
         $packageBot = $this->getHelper('container')->getByType('Salamek\PackageBot\PackageBot');
 
-        $transporterNames = explode(',', $input->getOption('transporter'));
+        $transporterNames = array_filter(explode(',', $input->getOption('transporter')));
 
         try {
             $packageBot->flush($transporterNames);
