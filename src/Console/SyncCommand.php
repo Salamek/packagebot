@@ -4,6 +4,7 @@
  */
 namespace Salamek\PackageBot\Console;
 
+use Salamek\PackageBot\PackageBot;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,6 +21,7 @@ class SyncCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var PackageBot $packageBot */
         $packageBot = $this->getHelper('container')->getByType('Salamek\PackageBot\PackageBot');
 
         $transporterNames = explode(',', $input->getOption('transporter'));

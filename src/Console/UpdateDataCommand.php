@@ -24,7 +24,7 @@ class UpdateDataCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var PackageBot $menuRepository */
+        /** @var PackageBot $packageBot */
         $packageBot = $this->getHelper('container')->getByType('Salamek\PackageBot\PackageBot');
         $transporterNames = explode(',', $input->getOption('transporter'));
 
