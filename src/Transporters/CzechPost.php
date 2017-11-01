@@ -43,14 +43,14 @@ class CzechPost implements ITransporter
      * CzechPost constructor.
      * @param array $configuration
      * @param array $sender
-     * @param $cookieJar
+     * @param $tempDir
      * @param ITransporterDataGroupStorage $transporterDataGroupStorage
      * @param ITransporterDataItemStorage $transporterDataItemStorage
      */
     public function __construct(
         array $configuration, 
         array $sender,
-        $cookieJar,
+        $tempDir,
         ITransporterDataGroupStorage $transporterDataGroupStorage,
         ITransporterDataItemStorage $transporterDataItemStorage
     )
@@ -61,6 +61,16 @@ class CzechPost implements ITransporter
         $this->password = $configuration['password'];
 
         $this->czechPostSender = new Sender($this->id, null, null, $sender['name'], $sender['www'], $sender['street'], $sender['streetNumber'], $sender['zipCode'], $sender['cityPart'], $sender['city'], $sender['country'], $configuration['postOfficeZipCode'], substr($configuration['senderId'], 0, 1));
+
+
+        if (is_null($tempDir))
+        {
+            $cookieJar = tempnam(sys_get_temp_dir(), 'cookieJar.txt');
+        }
+        else
+        {
+            $cookieJar = $tempDir.'/cookieJar.txt';
+        }
 
         $this->api = new Api($this->username, $this->password, $cookieJar);
     }
@@ -178,5 +188,10 @@ class CzechPost implements ITransporter
     public function hasLocalSeriesNumber()
     {
         return true;
+    }
+
+    public function doDataUpdate()
+    {
+        // TODO: Implement doDataUpdate() method.
     }
 }
