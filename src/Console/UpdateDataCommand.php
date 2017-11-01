@@ -26,8 +26,10 @@ class UpdateDataCommand extends Command
     {
         /** @var PackageBot $packageBot */
         $packageBot = $this->getHelper('container')->getByType('Salamek\PackageBot\PackageBot');
-        $transporterNames = explode(',', $input->getOption('transporter'));
+        $transporter = $input->getOption('transporter');
 
+        $transporterNames = array_filter(explode(',', $transporter));
+        
         try {
             $packageBot->dataUpdate($transporterNames);
             $output->writeLn('All presenters successfully generated');
