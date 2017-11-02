@@ -14,11 +14,13 @@ use Salamek\PplMyApi\Exception\OfflineException;
 use Salamek\PplMyApi\Exception\WrongDataException;
 use Salamek\PplMyApi\Label;
 use Salamek\PplMyApi\Model\Package as TransporterPackage;
+use Salamek\PplMyApi\Model\PackageNumberInfo;
 use Salamek\PplMyApi\Model\PaymentInfo;
 use Salamek\PplMyApi\Model\Recipient;
 use Salamek\PplMyApi\Model\Sender;
 
 use Salamek\PackageBot\Model\Package;
+use Salamek\PplMyApi\Tools;
 
 
 /**
@@ -66,7 +68,17 @@ class ProfessionalParcelLogistic implements ITransporter
         $this->password = $configuration['password'];
         $this->depoCode = $configuration['depoCode'];
 
-        $this->professionalParcelLogisticSender = new Sender($sender['city'], $sender['name'], $sender['street'].' '.$sender['streetNumber'], $sender['zipCode'], $sender['email'], $sender['phone'], null, $sender['country'], $sender['www']);
+        $this->professionalParcelLogisticSender = new Sender(
+            $sender['city'],
+            $sender['name'],
+            $sender['street'].' '.$sender['streetNumber'],
+            $sender['zipCode'],
+            $sender['email'],
+            $sender['phone'],
+            null,
+            $sender['country'],
+            $sender['www']
+        );
 
         try
         {
@@ -101,13 +113,27 @@ class ProfessionalParcelLogistic implements ITransporter
 
             if (!is_null($package->getPaymentInfo()))
             {
-                $professionalParcelLogisticPaymentInfo = new PaymentInfo($package->getPaymentInfo()->getCashOnDeliveryPrice(), $package->getPaymentInfo()->getCashOnDeliveryCurrency(), $package->getPaymentInfo()->getBankIdentifier());
+                $professionalParcelLogisticPaymentInfo = new PaymentInfo(
+                    $package->getPaymentInfo()->getCashOnDeliveryPrice(),
+                    $package->getPaymentInfo()->getCashOnDeliveryCurrency(),
+                    $package->getPaymentInfo()->getBankIdentifier()
+                );
             }
             else
             {
                 $professionalParcelLogisticPaymentInfo = null;
             }
-            $professionalParcelLogisticRecipient = new Recipient($package->getRecipient()->getCity(), ($package->getRecipient()->getCompany() ? $package->getRecipient()->getCompany() : $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName()) , $package->getRecipient()->getStreet().' '.$package->getRecipient()->getStreetNumber(), $package->getRecipient()->getZipCode(), $package->getRecipient()->getEmail(), $package->getRecipient()->getPhone(), $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName(), $package->getRecipient()->getCountry(), $package->getRecipient()->getWww());
+            $professionalParcelLogisticRecipient = new Recipient(
+                $package->getRecipient()->getCity(),
+                ($package->getRecipient()->getCompany() ? $package->getRecipient()->getCompany() : $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName()),
+                $package->getRecipient()->getStreet().' '.$package->getRecipient()->getStreetNumber(),
+                $package->getRecipient()->getZipCode(),
+                $package->getRecipient()->getEmail(),
+                $package->getRecipient()->getPhone(),
+                $package->getRecipient()->getFirstName().' '.$package->getRecipient()->getLastName(),
+                $package->getRecipient()->getCountry(),
+                $package->getRecipient()->getWww()
+            );
 
             if (!is_null($package->getWeightedPackageInfo()))
             {
@@ -127,7 +153,32 @@ class ProfessionalParcelLogistic implements ITransporter
                 $description = $package->getDescription();
             }
 
-            return new TransporterPackage($package->getSeriesNumberInfo()->getSeriesNumber(), $packageProductType, $weight, $description, $this->depoCode, $this->professionalParcelLogisticSender, $professionalParcelLogisticRecipient, null, $professionalParcelLogisticPaymentInfo, [], [], [], null, null, $package->getPackageCount(), $package->getPackagePosition());
+            $packageNumberInfo = new PackageNumberInfo(
+                $package->getSeriesNumberInfo()->getSeriesNumber(),
+                $packageProductType,
+                $this->depoCode
+            );
+
+            $packageNumber = Tools::generatePackageNumber($packageNumberInfo);
+
+            return new TransporterPackage(
+                $packageNumber,
+                $packageProductType,
+                $weight,
+                $description,
+                $this->depoCode,
+                $professionalParcelLogisticRecipient,
+                $this->professionalParcelLogisticSender,
+                null,
+                $professionalParcelLogisticPaymentInfo,
+                [],
+                [],
+                [],
+                null,
+                null,
+                $package->getPackageCount(),
+                $package->getPackagePosition()
+            );
         }
         catch (WrongDataException $e)
         {
@@ -178,7 +229,12 @@ class ProfessionalParcelLogistic implements ITransporter
 
                 /** @var Package $foundSendPackage */
                 $foundSendPackage = $packagesByPackageNumber[$result->ItemKey];
-                return new SendPackageResult(($result->Code == 0 ? true : false), $result->Code, (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message), $foundSendPackage->getSeriesNumberInfo());
+                return new SendPackageResult(
+                    ($result->Code == 0 ? true : false),
+                    $result->Code,
+                    (!$result->Message ? ($result->Code == 0 ? 'OK' : 'ERR') : $result->Message),
+                    $foundSendPackage->getSeriesNumberInfo()
+                );
             };
 
             if (is_object($results) && property_exists($results, 'ItemKey'))
