@@ -6,8 +6,12 @@
 namespace Salamek\PackageBot\Model;
 
 
+use Nette\SmartObject;
+
 class SeriesNumberInfo
 {
+    use SmartObject;
+    
     /** @var integer|null */
     private $seriesId = null;
 

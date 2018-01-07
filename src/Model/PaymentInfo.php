@@ -6,11 +6,14 @@
 namespace Salamek\PackageBot\Model;
 
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Enum\Currency;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 
 class PaymentInfo
 {
+    use SmartObject;
+    
     /** @var int */
     private $cashOnDeliveryPrice;
 

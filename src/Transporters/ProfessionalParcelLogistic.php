@@ -1,6 +1,7 @@
 <?php
 namespace Salamek\PackageBot\Transporters;
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\TransportService;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
@@ -28,6 +29,8 @@ use Salamek\PplMyApi\Tools;
  */
 class ProfessionalParcelLogistic implements ITransporter
 {
+    use SmartObject;
+
     /** @var mixed */
     private $customerId;
 

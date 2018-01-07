@@ -6,12 +6,15 @@
 namespace Salamek\PackageBot\Storage;
 
 
+use Nette\SmartObject;
 use Salamek\PackageBot\IPackageStorage;
 use Salamek\PackageBot\Model\Package;
 use Salamek\PackageBot\Model\SeriesNumberInfo;
 
 class PackageBotPackageStorage extends FileStorage implements IPackageStorage
 {
+    use SmartObject;
+    
     /**
      * @param $transporter
      * @param $packageNumber

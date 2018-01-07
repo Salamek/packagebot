@@ -7,6 +7,7 @@
  */
 
 namespace Salamek\PackageBot\Model;
+use Nette\SmartObject;
 
 /**
  * Class TransporterDataItem
@@ -14,6 +15,8 @@ namespace Salamek\PackageBot\Model;
  */
 class TransporterDataItem implements ITransporterDataItem
 {
+    use SmartObject;
+    
     /** @var string */
     private $transporter;
 

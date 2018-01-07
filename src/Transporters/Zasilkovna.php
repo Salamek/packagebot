@@ -8,6 +8,7 @@
 
 namespace Salamek\PackageBot\Transporters;
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Enum\LabelPosition;
 use Salamek\PackageBot\Enum\Transporter;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
@@ -30,6 +31,8 @@ use Salamek\PackageBot\Model\SendPackageResult;
  */
 class BranchStoragePackageBot implements IBranchStorage
 {
+    use SmartObject;
+
     /** @var string */
     private $expiry;
 

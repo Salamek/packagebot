@@ -6,10 +6,13 @@
 namespace Salamek\PackageBot\Model;
 
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 
 class WeightedPackageInfo
 {
+    use SmartObject;
+
     /** @var float */
     private $weight;
 

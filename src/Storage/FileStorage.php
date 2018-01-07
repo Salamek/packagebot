@@ -5,8 +5,12 @@
 
 namespace Salamek\PackageBot\Storage;
 
+use Nette\SmartObject;
+
 class FileStorage
 {
+    use SmartObject;
+    
     private $dirStorage;
 
     const STORAGE_TABLE_PACKAGE = 'packages';

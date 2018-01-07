@@ -5,11 +5,14 @@
 
 namespace Salamek\PackageBot\Model;
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Exception\WrongDeliveryDataException;
 use Salamek\PplMyApi\Enum\Country;
 
 class Recipient
 {
+    use SmartObject;
+    
     /** @var integer */
     private $id;
 

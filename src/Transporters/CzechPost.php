@@ -2,6 +2,7 @@
 namespace Salamek\PackageBot\Transporters;
 
 
+use Nette\SmartObject;
 use Salamek\CzechPostApi\Api;
 use Salamek\CzechPostApi\Enum\Product;
 use Salamek\CzechPostApi\Exception\WrongDataException;
@@ -24,6 +25,8 @@ use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
  */
 class CzechPost implements ITransporter
 {
+    use SmartObject;
+
     /** @var mixed */
     private $id;
 

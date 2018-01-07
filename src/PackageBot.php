@@ -18,8 +18,10 @@ use Salamek\PackageBot\Storage\ITransporterDataItemStorage;
 use Salamek\PackageBot\Transporters\ITransporter;
 use Nette;
 
-class PackageBot extends Nette\Object
+class PackageBot
 {
+    use Nette\SmartObject;
+    
     public static $namespace = 'Salamek\PackageBot';
 
     /** @var array */

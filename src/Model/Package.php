@@ -5,10 +5,13 @@
 
 namespace Salamek\PackageBot\Model;
 
+use Nette\SmartObject;
 use Salamek\PackageBot\Enum\TransportService;
 
 class Package
 {
+    use SmartObject;
+    
     /** @var SeriesNumberInfo */
     private $seriesNumberInfo;
 

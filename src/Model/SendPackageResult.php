@@ -6,8 +6,12 @@
 namespace Salamek\PackageBot\Model;
 
 
+use Nette\SmartObject;
+
 class SendPackageResult
 {
+    use SmartObject;
+    
     /** @var bool */
     private $success = false;
 
